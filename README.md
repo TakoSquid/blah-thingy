@@ -5,6 +5,6 @@ This is only a test !
 ## Features
 * Simple C.M.O. implementation
 * Sound support
-* (https://ogmo-editor-3.github.io/)[Ogmo] map support
+* [Ogmo](https://ogmo-editor-3.github.io/) map support
 * Camera
 * Graphical debugging tools
