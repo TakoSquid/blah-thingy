@@ -19,7 +19,6 @@
 
 namespace BT {
 	namespace {
-		static bool go = false;
 		static int index = 0;
 		Point player_pos;
 		const String txt = "salut a tous c'est tako\nc'est hibya en plus aigu";
@@ -253,20 +252,6 @@ namespace BT {
 
 		camera.update();
 
-		static float timer = 0.0f;
-
-		if (Input::pressed(Key::Enter))
-			go = true;
-
-		if (timer >= .1f && index < txt.length() && go) {
-			Content::play_sound(txt.substr(index, index + 1));
-			timer = 0.0f;
-			std::cout << txt.substr(index, index + 1);
-			index++;
-		}
-
-		timer += Time::delta;
-
 		// ImGui drawing
 		{
 
@@ -354,9 +339,7 @@ namespace BT {
 			ImGui::End();
 
 			// Com Tree
-			ImGui::Begin("COM Tree", 0, ImGuiWindowFlags_AlwaysAutoResize);
-
-			
+			ImGui::Begin("COM Tree", 0, ImGuiWindowFlags_AlwaysAutoResize);	
 
 			auto entity = world.first_entity();
 			while (entity)
@@ -501,9 +484,6 @@ namespace BT {
 					collider = (Collider*)collider->next();
 				}
 			}
-
-			if (go)
-				batch.str(Content::font, txt.substr(0, index + 1), player_pos + Point(-4 * (index / 2 + 1), -25 * 2), Color::black);
 
 			batch.pop_matrix();
 
