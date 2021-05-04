@@ -28,6 +28,7 @@ namespace BT
 		void play(const String& animation, bool restart = false, bool play_once = false);
 		void update() override;
 		void render(Batch& batch) override;
+		void debug() override;
 
 	private:
 		bool in_valid_state() const;

@@ -46,6 +46,7 @@ namespace BT {
 		virtual void update();
 		virtual void render(Blah::Batch& batch);
 		virtual void destroyed();
+		virtual void debug();
 
 	private:
 		uint8_t m_type = 0;

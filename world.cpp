@@ -72,6 +72,7 @@ void Component::awake() {}
 void Component::update() {}
 void Component::render(Blah::Batch& batch) {}
 void Component::destroyed() {}
+void Component::debug() {}
 
 World* Entity::world()
 {

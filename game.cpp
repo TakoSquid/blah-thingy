@@ -377,9 +377,10 @@ namespace BT {
 			{
 				ImGui::AlignTextToFramePadding();
 				ImGui::Text(selected->name.cstr());
-				ImGui::SameLine();
-				bool e_press_delete = ImGui::Button("Delete");
-
+				ImGui::SameLine(ImGui::GetWindowWidth() - 25);
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));	
+				bool e_press_delete = ImGui::Button("x");
+				ImGui::PopStyleColor();
 
 				ImGui::Checkbox("Visible", &(selected->visible));
 				ImGui::SameLine();
@@ -406,9 +407,11 @@ namespace BT {
 					bool component_open = ImGui::TreeNodeEx(ss.str().c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
 
 					ss.str("");
-					ss << "Delete##" << &c;
-					ImGui::SameLine();
+					ss << "x##" << &c;
+					ImGui::SameLine(ImGui::GetWindowWidth() - 25);
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));
 					bool c_press_delete = ImGui::Button(ss.str().c_str());
+					ImGui::PopStyleColor();
 
 					if (component_open)
 					{
@@ -425,6 +428,8 @@ namespace BT {
 						ss << "depth##" << &c;
 						ImGui::PushItemWidth(80);
 						ImGui::InputInt(ss.str().c_str(), &(c->depth));
+						ImGui::Separator();
+						c->debug();
 						ImGui::TreePop();
 					}
 

@@ -1,6 +1,8 @@
 #include "animator.h"
 #include "content.h"
 #include <iostream>
+#include "imgui.h"
+#include <sstream>
 
 using namespace BT;
 
@@ -90,4 +92,72 @@ bool Animator::in_valid_state() const
 		m_animation_index < m_sprite->animations.size() &&
 		m_frame_index >= 0 &&
 		m_frame_index < m_sprite->animations[m_animation_index].frames.size();
+}
+
+void Animator::debug()
+{
+	std::stringstream ss;
+
+	static Sprite::Animation selected_animation = m_sprite->animations[0];
+	static bool restart = false;
+	static bool play_once = false;
+
+	ss << "Animation##" << this;
+	ImGui::Text(ss.str().c_str());
+
+	if (ImGui::BeginCombo(ss.str().c_str(), selected_animation.name))
+	{
+		
+		ss.str("");
+
+		for (const auto& anim : m_sprite->animations)
+		{
+			bool selected = (selected_animation.name == anim.name);
+
+			ss << anim.name << "##" << this;
+			if (ImGui::Selectable(ss.str().c_str(), selected))
+				selected_animation = anim;
+			ss.str("");
+
+			if (selected)
+				ImGui::SetItemDefaultFocus();
+		}
+
+		ImGui::EndCombo();
+	}
+
+	ss.str("");
+
+	ImGui::SameLine();
+	
+	ss << "restart##" << this;
+	ImGui::Checkbox(ss.str().c_str(), &restart);
+	ss.str("");
+
+	ImGui::SameLine();
+
+	ss << "play once##" << this;
+	ImGui::Checkbox(ss.str().c_str(), &play_once);
+	ss.str("");
+
+
+	ss << "scale##" << this;
+	float scale[2] = { this->scale.x , this->scale.y };
+	ImGui::InputFloat2(ss.str().c_str(), scale);
+	this->scale = Vec2(scale[0], scale[1]);
+	ss.str("");
+
+	ss << "offset##" << this;
+	int offset[2] = { this->offset.x, this->offset.y };
+	ImGui::InputInt2(ss.str().c_str(), offset);
+	this->offset = Point(offset[0], offset[1]);
+	ss.str("");
+
+	ss << "in valid state : " << std::boolalpha << in_valid_state();
+	ImGui::Text(ss.str().c_str());
+	ss.str("");
+
+	ss << "play once : " << std::boolalpha << m_play_once;
+	ImGui::Text(ss.str().c_str());
+	ss.str("");
 }
