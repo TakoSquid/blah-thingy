@@ -47,33 +47,36 @@ void Player::update()
 
 	// Sprite
 	{
+		if (anim) {
 		if (!was_on_ground && m_on_ground && mover->speed.y >= 0)
 			anim->scale = Vec2(m_facing * 1.5f, 0.7f);
 
-		if (anim) {
+		
 			anim->scale = Calc::approach(anim->scale, Vec2(m_facing, 1.0f), Time::delta * 4);
 
 			anim->scale.x = Calc::abs(anim->scale.x) * m_facing;
 		}
 	}
 
-	if (m_state == st_normal && anim)
+	if (m_state == st_normal)
 	{
-		if (m_on_ground && mover->speed.y >= 0)
-		{
-			if (input != 0)
-				anim->play("run");
+		if (anim) {
+			if (m_on_ground && mover->speed.y >= 0)
+			{
+				if (input != 0)
+					anim->play("run");
+				else
+					anim->play("idle");
+			}
 			else
-				anim->play("idle");
-		}
-		else
-		{
-			if (mover->speed.y < 0)
-				anim->play("jump");
-			else if (Calc::abs(mover->speed.y) <= 50.0f)
-				anim->play("mid-air");
-			else
-				anim->play("fall");
+			{
+				if (mover->speed.y < 0)
+					anim->play("jump");
+				else if (Calc::abs(mover->speed.y) <= 50.0f)
+					anim->play("mid-air");
+				else
+					anim->play("fall");
+			}
 		}
 
 		// x axis
@@ -106,7 +109,8 @@ void Player::update()
 		if (input_jump.pressed() && mover->on_ground())
 		{
 			input_jump.consume_press();
-			anim->scale = Vec2(m_facing * 0.65f, 1.4f);
+			if(anim)
+				anim->scale = Vec2(m_facing * 0.65f, 1.4f);
 			mover->speed.x = input_move.value().x * max_air_speed;
 			m_jump_timer = jump_time;
 

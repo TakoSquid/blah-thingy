@@ -111,7 +111,8 @@ void Mech::set_pilot(Entity* pilot)
 	m_pilot->active = false;
 	m_pilot->visible = false;
 
-	m_pilot->get<Animator>()->play("idle");
+	if(auto anim = m_pilot->get<Animator>())
+		anim->play("idle");
 }
 
 void Mech::release_pilot()
