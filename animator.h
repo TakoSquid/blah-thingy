@@ -36,7 +36,6 @@ namespace BT
 
 		//debug
 		Sprite::Animation debug_selected_animation;
-		bool debug_restart = false;
 		bool debug_play_once = false;
 	};
 }

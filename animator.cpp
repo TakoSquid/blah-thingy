@@ -121,10 +121,6 @@ void Animator::debug()
 	}
 	ss.str("");
 	ImGui::SameLine();
-	
-	ss << "restart##" << this;
-	ImGui::Checkbox(ss.str().c_str(), &debug_restart);
-	ss.str("");
 
 	ImGui::SameLine();
 
@@ -137,7 +133,7 @@ void Animator::debug()
 	ss << "Play !##" << this;
 	if (ImGui::Button(ss.str().c_str()))
 	{
-		play(debug_selected_animation.name, debug_restart, debug_play_once);
+		play(debug_selected_animation.name, true, debug_play_once);
 	}
 
 	ss.str("");
