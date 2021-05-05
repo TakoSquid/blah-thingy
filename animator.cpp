@@ -99,7 +99,6 @@ void Animator::debug()
 	std::stringstream ss;
 
 	ss << "Animation##" << this;
-	ImGui::Text(ss.str().c_str());
 
 	if (ImGui::BeginCombo(ss.str().c_str(), debug_selected_animation.name))
 	{
@@ -120,7 +119,6 @@ void Animator::debug()
 		ImGui::EndCombo();
 	}
 	ss.str("");
-	ImGui::SameLine();
 
 	ImGui::SameLine();
 

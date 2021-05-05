@@ -25,9 +25,11 @@ namespace {
 
 	void update()
 	{
-		
+		static bool pause = false;
+
 		DearImgui::update();
 		game.update();
+
 		ImGui::EndFrame();
 	}
 

@@ -14,7 +14,7 @@
 #include "world.h"
 #include "animator.h"
 
-#include <iostream> 
+#include <iostream>
 #include <sstream>
 
 namespace BT {
@@ -65,7 +65,6 @@ namespace BT {
 		up_arrow = Texture::create(Content::path() + "images/up_arrow.png");
 		right_arrow = Texture::create(Content::path() + "images/right_arrow.png");
 		pivot = Texture::create(Content::path() + "images/pivot.png");
-
 	}
 
 	void Game::load_room(String name, bool is_reload)
@@ -216,66 +215,71 @@ namespace BT {
 	}
 
 	void Game::update() {
-		
 
-		if (auto player = world.first<Player>())
-			player_pos = player->entity()->position;
+		static bool paused = false;
 
+		ImGui::Begin("CHAOS CONTROL", 0, ImGuiWindowFlags_AlwaysAutoResize);
+		if (ImGui::Button("play/pause"))
+			paused = !paused;
+		ImGui::Text("Paused : %d", paused);
+		ImGui::End();
 
-		if (Input::pressed(Key::F2))
-		{
-			world.clear();
-			load_room(room->name);
-		}
+		if (!paused) {
+			if (auto player = world.first<Player>())
+				player_pos = player->entity()->position;
 
-		if (!camera.is_in_transition())
-			world.update();
-
-		if (!RectI(room->offset, room->size).contains(player_pos))
-		{
-			if (auto found_room = Content::find_room_by_pos(player_pos))
+			if (Input::pressed(Key::F2))
 			{
-				room = found_room;
-				//camera.lerp_to(room->offset);
+				world.clear();
+				load_room(room->name);
 			}
-			else
+
+			if (!camera.is_in_transition())
+				world.update();
+
+			if (!RectI(room->offset, room->size).contains(player_pos))
 			{
-				Log::warn("Player outside of every room, not supposed to happen !");
+				if (auto found_room = Content::find_room_by_pos(player_pos))
+				{
+					room = found_room;
+					//camera.lerp_to(room->offset);
+				}
+				else
+				{
+					Log::warn("Player outside of every room, not supposed to happen !");
+				}
 			}
+
+			if (auto player = world.first<Player>())
+				player_pos = player->entity()->position;
+
+			//camera.set_position(pos - Point(width / 2, height / 2));
+			camera.set_position(Point(Calc::min(Calc::max(0, player_pos.x - 50), width * 2), 0));
+
+			camera.update();
 		}
-
-		if (auto player = world.first<Player>())
-			player_pos = player->entity()->position;
-
-		//camera.set_position(pos - Point(width / 2, height / 2));
-		camera.set_position(Point(Calc::min(Calc::max(0, player_pos.x - 50), width * 2), 0));
-
-		camera.update();
 
 		// ImGui drawing
 		{
-
 			ImGuiIO& io = ImGui::GetIO();
 			ImVec2 pos = ImGui::GetCursorPos(); //NOT GetCursorScreenPos() -> 1h of my life I wont get back
 			static Point pixel_hovered = Point::zero;
-			
+			static Point ingame_position = Point::zero;
+
 			// Game Display
 			ImGui::Begin("Game", 0, ImGuiWindowFlags_AlwaysAutoResize);
 
-
 			if (game_texture) {
-
 				ImVec2 win_pos = ImGui::GetWindowPos();
 
 				DearImgui::display_texture(game_texture, Vec2(game_texture->width(), game_texture->height()) * display_scale, Vec2(0, 1), Vec2(1, 0));
-
 
 				if (ImGui::IsItemHovered())
 				{
 					pixel_hovered.x = (int)((io.MousePos.x - (pos.x + win_pos.x)) / display_scale);
 					pixel_hovered.y = (int)((io.MousePos.y - (pos.y + win_pos.y)) / display_scale);
 
-					Point ingame_position = Point(pixel_hovered.x + (int)camera.get_position().x, pixel_hovered.y + (int)camera.get_position().y);
+					ingame_position = Point(pixel_hovered.x + (int)camera.get_position().x, pixel_hovered.y + (int)camera.get_position().y);
 
 					ImGui::BeginTooltip();
 					ImGui::Text("mouse pos : {%d:%d}", (int)io.MousePos.x, (int)io.MousePos.y);
@@ -283,7 +287,7 @@ namespace BT {
 					ImGui::Text("win pos : {%d:%d}", (int)win_pos.x, (int)win_pos.y);
 					ImGui::Text("pixel hovered : {%d:%d}", pixel_hovered.x, pixel_hovered.y);
 					ImGui::Text("in game : {%d:%d}", ingame_position.x, ingame_position.y);
-					
+
 					if (ImGui::IsMouseClicked(0))
 					{
 						Vector<Entity*> found_entities;
@@ -315,21 +319,53 @@ namespace BT {
 
 				if (selected)
 				{
-					auto selected_cursorpos = (Vec2(selected->position) - camera.get_position()) * display_scale + Vec2(pos.x, pos.y);
+					static Vec2 selected_cursorpos;
 
-					if (selected_cursorpos.x + right_arrow->width() <= width * display_scale)
+					if (selected_cursorpos.x + right_arrow->width() <= width * display_scale && selected_cursorpos.y <= height * display_scale)
 					{
+						static Point mouse_pivot_offset;
+
 						ImGui::SetCursorPos(ImVec2(selected_cursorpos.x, selected_cursorpos.y - right_arrow->height() / 2));
 						DearImgui::display_texture(right_arrow, Vec2(right_arrow->width(), right_arrow->height()));
+
+						static bool right_arrow_active = false;
+						if (right_arrow_active)
+						{
+							selected->position = Point(ingame_position.x, selected->position.y) - mouse_pivot_offset;
+						}
+
+						if (ImGui::IsItemClicked() || (right_arrow_active && !ImGui::IsItemClicked() && ImGui::IsMouseClicked(0)))
+						{
+							right_arrow_active = !right_arrow_active;
+							if (right_arrow_active)
+								mouse_pivot_offset = Point((ingame_position - selected->position).x, 0);
+						}
+
 						ImGui::SetCursorPos(ImVec2(selected_cursorpos.x - up_arrow->width() / 2, selected_cursorpos.y - up_arrow->height()));
 						DearImgui::display_texture(up_arrow, Vec2(up_arrow->width(), up_arrow->height()));
+
+						static bool up_arrow_active = false;
+						if (up_arrow_active)
+						{
+							selected->position = Point(selected->position.x, ingame_position.y) - mouse_pivot_offset;
+						}
+
+						if (ImGui::IsItemClicked() || (up_arrow_active && !ImGui::IsItemClicked() && ImGui::IsMouseClicked(0)))
+						{
+							up_arrow_active = !up_arrow_active;
+							if(up_arrow_active)
+								mouse_pivot_offset = Point(0, (ingame_position - selected->position).y);
+						}
+
 						ImGui::SetCursorPos(ImVec2(selected_cursorpos.x - pivot->width() / 2, selected_cursorpos.y - pivot->height() / 2));
 						DearImgui::display_texture(pivot, Vec2(pivot->width(), pivot->height()));
+
 					}
+
+					selected_cursorpos = (Vec2(selected->position) - camera.get_position()) * display_scale + Vec2(pos.x, pos.y);
+
 				}
 			}
-
-
 
 			ImGui::End();
 
@@ -345,7 +381,7 @@ namespace BT {
 			ImGui::End();
 
 			// Com Tree
-			ImGui::Begin("COM Tree", 0, ImGuiWindowFlags_AlwaysAutoResize);	
+			ImGui::Begin("COM Tree", 0, ImGuiWindowFlags_AlwaysAutoResize);
 
 			auto entity = world.first_entity();
 			while (entity)
@@ -353,17 +389,14 @@ namespace BT {
 				auto next = entity->next();
 				auto components = entity->components();
 
-
 				ImGuiTreeNodeFlags node_flags = (entity == selected) ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None;
 
-				bool tree_open = ImGui::TreeNodeEx((void*)entity, node_flags,"%s", entity->name.cstr());
-
+				bool tree_open = ImGui::TreeNodeEx((void*)entity, node_flags, "%s", entity->name.cstr());
 
 				if (ImGui::IsItemClicked())
 					selected = entity;
 
 				if (tree_open) {
-
 					for (const auto& c : components)
 					{
 						ImGui::Text("%s", c->name().cstr());
@@ -384,7 +417,7 @@ namespace BT {
 				ImGui::AlignTextToFramePadding();
 				ImGui::Text(selected->name.cstr());
 				ImGui::SameLine(ImGui::GetWindowWidth() - 25);
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));	
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));
 				bool e_press_delete = ImGui::Button("x");
 				ImGui::PopStyleColor();
 
@@ -400,11 +433,10 @@ namespace BT {
 				selected->scale = Point(scale[0], scale[1]);
 				ImGui::SliderFloat("Rotation", &selected->rotation, 0, Calc::PI * 2);
 
-
 				for (auto& c : selected->components())
 				{
 					ImGui::Separator();
-					
+
 					std::stringstream ss;
 					ss << c->name().cstr() << "##" << &c;
 
@@ -421,7 +453,6 @@ namespace BT {
 
 					if (component_open)
 					{
-
 						ss.str("");
 						ss << "visible##" << &c;
 						ImGui::Checkbox(ss.str().c_str(), &(c->visible));
@@ -445,13 +476,11 @@ namespace BT {
 					}
 				}
 
-				if(e_press_delete)
+				if (e_press_delete)
 				{
 					selected->destroy();
 					selected = nullptr;
 				}
-
-				
 			}
 			ImGui::End();
 		}
