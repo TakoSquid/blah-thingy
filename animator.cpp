@@ -98,25 +98,19 @@ void Animator::debug()
 {
 	std::stringstream ss;
 
-	static Sprite::Animation selected_animation = m_sprite->animations[0];
-	static bool restart = false;
-	static bool play_once = false;
-
 	ss << "Animation##" << this;
 	ImGui::Text(ss.str().c_str());
 
-	if (ImGui::BeginCombo(ss.str().c_str(), selected_animation.name))
+	if (ImGui::BeginCombo(ss.str().c_str(), debug_selected_animation.name))
 	{
-		
 		ss.str("");
-
 		for (const auto& anim : m_sprite->animations)
 		{
-			bool selected = (selected_animation.name == anim.name);
+			bool selected = (debug_selected_animation.name == anim.name);
 
 			ss << anim.name << "##" << this;
 			if (ImGui::Selectable(ss.str().c_str(), selected))
-				selected_animation = anim;
+				debug_selected_animation = anim;
 			ss.str("");
 
 			if (selected)
@@ -125,21 +119,28 @@ void Animator::debug()
 
 		ImGui::EndCombo();
 	}
-
 	ss.str("");
-
 	ImGui::SameLine();
 	
 	ss << "restart##" << this;
-	ImGui::Checkbox(ss.str().c_str(), &restart);
+	ImGui::Checkbox(ss.str().c_str(), &debug_restart);
 	ss.str("");
 
 	ImGui::SameLine();
 
 	ss << "play once##" << this;
-	ImGui::Checkbox(ss.str().c_str(), &play_once);
+	ImGui::Checkbox(ss.str().c_str(), &debug_play_once);
 	ss.str("");
 
+	ImGui::SameLine();
+
+	ss << "Play !##" << this;
+	if (ImGui::Button(ss.str().c_str()))
+	{
+		play(debug_selected_animation.name, debug_restart, debug_play_once);
+	}
+
+	ss.str("");
 
 	ss << "scale##" << this;
 	float scale[2] = { this->scale.x , this->scale.y };
@@ -160,4 +161,9 @@ void Animator::debug()
 	ss << "play once : " << std::boolalpha << m_play_once;
 	ImGui::Text(ss.str().c_str());
 	ss.str("");
+
+	ss << "currently playing : " << m_sprite->animations[m_animation_index].name << std::endl;
+	ImGui::Text(ss.str().c_str());
+	ss.str("");
+
 }

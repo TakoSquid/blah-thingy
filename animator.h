@@ -33,5 +33,10 @@ namespace BT
 	private:
 		bool in_valid_state() const;
 		bool m_play_once = false;
+
+		//debug
+		Sprite::Animation debug_selected_animation;
+		bool debug_restart = false;
+		bool debug_play_once = false;
 	};
 }

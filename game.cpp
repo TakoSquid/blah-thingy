@@ -256,17 +256,19 @@ namespace BT {
 		{
 
 			ImGuiIO& io = ImGui::GetIO();
-			ImVec2 pos = ImGui::GetCursorScreenPos();
+			ImVec2 pos = ImGui::GetCursorPos(); //NOT GetCursorScreenPos() -> 1h of my life I wont get back
 			static Point pixel_hovered = Point::zero;
 			
 			// Game Display
 			ImGui::Begin("Game", 0, ImGuiWindowFlags_AlwaysAutoResize);
+
 
 			if (game_texture) {
 
 				ImVec2 win_pos = ImGui::GetWindowPos();
 
 				DearImgui::display_texture(game_texture, Vec2(game_texture->width(), game_texture->height()) * display_scale, Vec2(0, 1), Vec2(1, 0));
+
 
 				if (ImGui::IsItemHovered())
 				{
@@ -276,7 +278,11 @@ namespace BT {
 					Point ingame_position = Point(pixel_hovered.x + (int)camera.get_position().x, pixel_hovered.y + (int)camera.get_position().y);
 
 					ImGui::BeginTooltip();
-					ImGui::Text("{%d:%d}", ingame_position.x, ingame_position.y);
+					ImGui::Text("mouse pos : {%d:%d}", (int)io.MousePos.x, (int)io.MousePos.y);
+					ImGui::Text("cursor pos : {%d:%d}", (int)pos.x, (int)pos.y);
+					ImGui::Text("win pos : {%d:%d}", (int)win_pos.x, (int)win_pos.y);
+					ImGui::Text("pixel hovered : {%d:%d}", pixel_hovered.x, pixel_hovered.y);
+					ImGui::Text("in game : {%d:%d}", ingame_position.x, ingame_position.y);
 					
 					if (ImGui::IsMouseClicked(0))
 					{
@@ -323,7 +329,7 @@ namespace BT {
 				}
 			}
 
-			
+
 
 			ImGui::End();
 
