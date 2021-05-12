@@ -27,9 +27,13 @@ Entity* Factory::player(World* world, Point point) {
 	auto slope_collider = en->add(Collider::make_rect(RectI(-1, -2, 2, 2)));
 	slope_collider->mask = Mask::player;
 
+	auto jumpthru_collider = en->add(Collider::make_rect(RectI(-4, -1, 8, 1)));
+	jumpthru_collider->mask = Mask::player;
+
 	auto mover = en->add(Mover());
 	mover->collider = hitbox;
 	mover->slope_collider = slope_collider;
+	mover->jumpthru_collider = jumpthru_collider;
 
 	en->add(Player());
 
@@ -58,16 +62,19 @@ Entity* BT::Factory::mech(World* world, Point pos)
 	animator->play("idle");
 	animator->depth = -9;
 
-	auto hitbox = en->add(Collider::make_rect(RectI(-10, -77, 20, 77)));
+	auto hitbox = en->add(Collider::make_rect(RectI(-10, -80, 20, 80)));
 	hitbox->mask = Mask::player;
 
 	auto slope_collider = en->add(Collider::make_rect(RectI(-1, -2, 2, 2)));
 	slope_collider->mask = Mask::player;
 
+	auto jumpthru_collider = en->add(Collider::make_rect(RectI(-10, -1, 20, 1)));
+
 	auto mover = en->add(Mover());
 	mover->gravity = 450;
 	mover->collider = hitbox;
 	mover->slope_collider = slope_collider;
+	mover->jumpthru_collider = jumpthru_collider;
 
 	auto player = en->add(Player());
 	player->active = false;

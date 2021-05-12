@@ -16,6 +16,8 @@ namespace BT
 	public:
 		Collider* collider = nullptr;
 		Collider* slope_collider = nullptr;
+		Collider* jumpthru_collider = nullptr;
+
 		Vec2 speed;
 		float gravity = 0;
 		float friction = 0;

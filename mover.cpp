@@ -84,7 +84,7 @@ bool Mover::move_y(int amount)
 			}
 
 			if (!hit_something && sign > 0) {
-				hit_something = collider->check(Mask::jumpthru, Point(0, sign)) && !collider->check(Mask::jumpthru, Point(0, 0));
+				hit_something = jumpthru_collider->check(Mask::jumpthru, Point(0, sign)) && !jumpthru_collider->check(Mask::jumpthru, Point(0, 0));
 			}
 
 			if (hit_something)
@@ -135,7 +135,7 @@ bool Mover::on_ground(int dist) const
 
 	return
 		collider->check(Mask::solid, Point(0, dist))
-		|| (collider->check(Mask::jumpthru, Point(0, dist)) && !collider->check(Mask::jumpthru, Point(0, 0))
+		|| (jumpthru_collider->check(Mask::jumpthru, Point(0, dist)) && !jumpthru_collider->check(Mask::jumpthru, Point(0, 0))
 			|| slope_collider->check(Mask::slope, Point(0, dist)));
 }
 
