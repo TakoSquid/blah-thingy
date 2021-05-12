@@ -9,6 +9,7 @@
 #include "debugSolid.h"
 #include "mech.h"
 #include "button.h"
+#include "signal_box.h"
 
 using namespace BT;
 
@@ -57,7 +58,7 @@ Entity* BT::Factory::mech(World* world, Point pos)
 	animator->play("idle");
 	animator->depth = -9;
 
-	auto hitbox = en->add(Collider::make_rect(RectI(-8, -22, 16, 22)));
+	auto hitbox = en->add(Collider::make_rect(RectI(-10, -77, 20, 77)));
 	hitbox->mask = Mask::player;
 
 	auto slope_collider = en->add(Collider::make_rect(RectI(-1, -2, 2, 2)));
@@ -104,6 +105,9 @@ Entity* BT::Factory::button(World* world, Point point)
 
 	auto trigger_zone = en->add(Collider::make_rect(RectI(-8, -8, 16, 8)));
 	button->trigger_zone = trigger_zone;
+
+	auto signal_box = en->add(SignalBox());
+	button->signal_box = signal_box;
 
 	return en;
 }

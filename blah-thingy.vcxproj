@@ -168,6 +168,7 @@
     <ClCompile Include="mech.cpp" />
     <ClCompile Include="mover.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="signal_box.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="talkative.cpp" />
     <ClCompile Include="test.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="mech.h" />
     <ClInclude Include="mover.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="signal_box.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="talkative.h" />
     <ClInclude Include="test.h" />

@@ -198,12 +198,6 @@ namespace BT {
 			if (it.name == "button")
 			{
 				auto en = Factory::button(&world, it.position + roomInfo->offset);
-				en->get<Button>()->on_press = ([](Button* self)
-					{
-						auto an = self->entity()->add(Animator("ty"));
-						an->offset = Point(-5, -20);
-						an->play("idle", true, true);
-					});
 			}
 		}
 

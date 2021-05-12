@@ -117,6 +117,9 @@
     <ClCompile Include="button.cpp">
       <Filter>Source Files\components</Filter>
     </ClCompile>
+    <ClCompile Include="signal_box.cpp">
+      <Filter>Source Files\components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\libs\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio\irrKlang.lib" />
@@ -202,6 +205,9 @@
       <Filter>imgui_imp</Filter>
     </ClInclude>
     <ClInclude Include="button.h">
+      <Filter>Header Files\components</Filter>
+    </ClInclude>
+    <ClInclude Include="signal_box.h">
       <Filter>Header Files\components</Filter>
     </ClInclude>
   </ItemGroup>

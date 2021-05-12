@@ -3,6 +3,7 @@
 #include <functional>
 #include "world.h"
 #include "collider.h"
+#include "signal_box.h"
 
 using namespace Blah;
 
@@ -13,11 +14,10 @@ namespace BT
 	public:
 		Button(bool pressed = false);
 
-		std::function<void(Button* self)> on_press;
-
 		void update() override;
 
 		Collider* trigger_zone;
+		SignalBox* signal_box;
 	private:
 		bool m_pressed;
 		bool m_pressed_old;

@@ -1,18 +1,18 @@
 #include "button.h"
 #include "masks.h"
 #include "animator.h"
+#include "signal_box.h"
 
 BT::Button::Button(bool pressed)
 	:m_pressed(pressed),
 	m_pressed_old(pressed),
-	trigger_zone(nullptr),
-	on_press([](Button* self) {Log::info("button pressed"); })
+	trigger_zone(nullptr)
 {
 }
 
 void BT::Button::press()
 {
-	on_press(this);
+	signal_box->activate();
 }
 
 void BT::Button::update()
