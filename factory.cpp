@@ -118,3 +118,20 @@ Entity* BT::Factory::button(World* world, Point point)
 
 	return en;
 }
+
+Entity* BT::Factory::door(World* world, Point point)
+{
+	auto en = world->add_entity(point);
+	en->name = "door";
+
+	auto hitbox = en->add(Collider::make_rect(RectI(0, 0, 30, 30)));
+	hitbox->mask = Mask::solid;
+
+	auto sb = en->add(SignalBox());
+	sb->on_signal_action = [](SignalBox* self)
+	{
+		self->entity()->position = self->entity()->position + Point(0, -30);
+	};
+
+	return en;
+}

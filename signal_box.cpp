@@ -1,6 +1,8 @@
 #include "signal_box.h"
 #include <blah.h>
 
+#include "imgui.h"
+
 using namespace Blah;
 
 namespace BT
@@ -30,6 +32,12 @@ namespace BT
 		for (const auto& sb : signal_boxes)
 			sb->activate();
 
-		Log::info("Done for %x", this);
+		Log::info("Done for %x, on entity : %s", this, entity()->name.cstr());
+	}
+
+	void SignalBox::debug()
+	{
+		if (ImGui::Button("activate"))
+			activate();
 	}
 }

@@ -197,7 +197,13 @@ namespace BT {
 
 			if (it.name == "button")
 			{
-				auto en = Factory::button(&world, it.position + roomInfo->offset);
+				auto btn = Factory::button(&world, it.position + roomInfo->offset);
+				auto door = Factory::door(&world, it.position + roomInfo->offset + Point(0, 40));
+
+				auto sb_btn = btn->get<SignalBox>();
+				auto sb_door = door->get<SignalBox>();
+
+				sb_btn->addSignalBox(sb_door);
 			}
 		}
 
