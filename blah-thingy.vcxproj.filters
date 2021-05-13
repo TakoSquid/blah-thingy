@@ -120,6 +120,9 @@
     <ClCompile Include="signal_box.cpp">
       <Filter>Source Files\components</Filter>
     </ClCompile>
+    <ClCompile Include="moving_platform.cpp">
+      <Filter>Source Files\components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\libs\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio\irrKlang.lib" />
@@ -208,6 +211,9 @@
       <Filter>Header Files\components</Filter>
     </ClInclude>
     <ClInclude Include="signal_box.h">
+      <Filter>Header Files\components</Filter>
+    </ClInclude>
+    <ClInclude Include="moving_platform.h">
       <Filter>Header Files\components</Filter>
     </ClInclude>
   </ItemGroup>

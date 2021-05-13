@@ -10,6 +10,7 @@
 #include "mech.h"
 #include "button.h"
 #include "signal_box.h"
+#include "moving_platform.h"
 
 using namespace BT;
 
@@ -124,14 +125,21 @@ Entity* BT::Factory::door(World* world, Point point)
 	auto en = world->add_entity(point);
 	en->name = "door";
 
-	auto hitbox = en->add(Collider::make_rect(RectI(0, 0, 30, 30)));
+	auto mov = en->add(MovingPlatform());
+
+	auto hitbox = en->add(Collider::make_rect(RectI(-8, -114, 16, 114)));
 	hitbox->mask = Mask::solid;
 
 	auto sb = en->add(SignalBox());
 	sb->on_signal_action = [](SignalBox* self)
 	{
-		self->entity()->position = self->entity()->position + Point(0, -30);
+		//self->entity()->position = self->entity()->position + Point(0, -30);
+		self->get<MovingPlatform>()->velocity = Point(0, -20);
+		Log::info("moving up ?");
 	};
+
+	auto an = en->add(Animator("door"));
+	an->depth = -1;
 
 	return en;
 }

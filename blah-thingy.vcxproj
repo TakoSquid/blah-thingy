@@ -162,6 +162,7 @@
     <ClCompile Include="content.cpp" />
     <ClCompile Include="dear_imgui.cpp" />
     <ClCompile Include="debugSolid.cpp" />
+    <ClCompile Include="moving_platform.cpp" />
     <ClCompile Include="factory.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="debugSolid.h" />
     <ClInclude Include="factory.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="moving_platform.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="masks.h" />
     <ClInclude Include="mech.h" />

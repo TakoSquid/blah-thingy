@@ -72,7 +72,8 @@
       "gridCellsY": 224,
       "entities": [
         {"name": "player_start", "id": 7, "_eid": "39189784", "x": 51, "y": 128, "originX": 4, "originY": 12},
-        {"name": "mech", "id": 8, "_eid": "98810646", "x": 125, "y": 128, "originX": -8, "originY": 22}
+        {"name": "mech", "id": 8, "_eid": "98810646", "x": 125, "y": 128, "originX": -8, "originY": 22},
+        {"name": "button", "id": 9, "_eid": "53474931", "x": 187, "y": 128, "originX": -8, "originY": 8}
       ]
     },
     {
