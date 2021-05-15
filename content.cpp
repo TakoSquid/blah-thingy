@@ -253,6 +253,14 @@ void Content::load()
 					parsedEntity.position.y = it["y"].get<int>();
 					parsedEntity.id = it["id"].get<int>();
 
+					if (!it["values"].is_null())
+					{
+						parsedEntity.values = it["values"];
+					}
+
+					/*if(it["values"])
+						parsedEntity.values = it["values"];*/
+
 					info.entities.push_back(parsedEntity);
 				}
 			}
@@ -320,14 +328,14 @@ const RoomInfo* Content::find_room_by_pos(const Point& position)
 	return nullptr;
 }
 
-void Content::play_sound(const char* name)
+void Content::play_sound(const char* name, bool playLooped, float playbackSpeed)
 {
 	for (auto& it : sounds)
 		if (it->name == name) {
-			ISound* snd = sound_engine->play2D(it->sound_source, false, true, true, false);
+			ISound* snd = sound_engine->play2D(it->sound_source, playLooped, true, true, false);
 			if (snd)
 			{
-				snd->setPlaybackSpeed(2.0f);
+				snd->setPlaybackSpeed(playbackSpeed);
 				snd->setIsPaused(false);
 			}
 		}

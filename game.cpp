@@ -13,9 +13,11 @@
 #include "dear_imgui.h"
 #include "world.h"
 #include "animator.h"
+#include "moving_platform.h"
 
 #include <iostream>
 #include <sstream>
+
 
 namespace BT {
 	namespace {
@@ -183,7 +185,7 @@ namespace BT {
 
 		for (auto& it : roomInfo->entities)
 		{
-			if (it.name == "player_start")
+			if (it.name == "player")
 			{
 				if (!world.first<Player>())
 					Factory::player(&world, it.position + roomInfo->offset);
@@ -197,13 +199,16 @@ namespace BT {
 
 			if (it.name == "button")
 			{
-				auto btn = Factory::button(&world, it.position + roomInfo->offset);
-				auto door = Factory::door(&world, it.position + roomInfo->offset + Point(30, 0));
+				Factory::button(&world, it.position + roomInfo->offset);
+			}
 
-				auto sb_btn = btn->get<SignalBox>();
-				auto sb_door = door->get<SignalBox>();
-
-				sb_btn->addSignalBox(sb_door);
+			if (it.name == "door")
+			{
+				auto en = Factory::door(&world, it.position + roomInfo->offset);
+				auto sb = en->get<SignalBox>();
+				sb->on_signal_action = [it](SignalBox* self) {
+					self->get<MovingPlatform>()->velocity = Point(it.values["velocity.x"].get<float>(), it.values["velocity.y"].get<float>());
+				};
 			}
 		}
 

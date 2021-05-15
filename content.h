@@ -24,6 +24,7 @@ namespace BT {
 		Point position;
 		String name;
 		int id;
+		json values;
 	};
 
 	struct RoomInfo
@@ -59,7 +60,7 @@ namespace BT {
 		/*static const RoomInfo* find_room(const Point& cell);*/
 		static const RoomInfo* find_room(const String& name);
 		static const RoomInfo* find_room_by_pos(const Point& position);
-		static void play_sound(const char* name);
+		static void play_sound(const char* name, bool playLooped = false, float playbackSpeed = 1.0f);
 	private:
 		static Vector<SoundInfo*> sounds;
 	};

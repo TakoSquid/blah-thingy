@@ -127,15 +127,14 @@ Entity* BT::Factory::door(World* world, Point point)
 
 	auto mov = en->add(MovingPlatform());
 
-	auto hitbox = en->add(Collider::make_rect(RectI(-8, -114, 16, 114)));
+	auto hitbox = en->add(Collider::make_rect(RectI(-56, -16, 112, 16)));
 	hitbox->mask = Mask::solid;
+	mov->collider = hitbox;
 
 	auto sb = en->add(SignalBox());
 	sb->on_signal_action = [](SignalBox* self)
 	{
-		//self->entity()->position = self->entity()->position + Point(0, -30);
-		self->get<MovingPlatform>()->velocity = Point(0, -20);
-		Log::info("moving up ?");
+		self->get<MovingPlatform>()->velocity = Point(40, 20);
 	};
 
 	auto an = en->add(Animator("door"));

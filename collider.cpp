@@ -101,7 +101,7 @@ Collider* Collider::first(uint32_t mask, Point offset)
 		{
 			if (other != this &&
 				other->active &&
-				(other->mask & mask) == mask &&
+				(other->mask & mask) != 0 &&
 				overlaps(other, offset))
 				return other;
 

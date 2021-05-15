@@ -74,7 +74,7 @@
   "entities": [
     {
       "exportID": "39189784",
-      "name": "player_start",
+      "name": "player",
       "limit": 1,
       "size": {"x": 8, "y": 12},
       "origin": {"x": 4, "y": 12},
@@ -179,6 +179,45 @@
       "nodeGhost": true,
       "tags": [],
       "values": []
+    },
+    {
+      "exportID": "01892108",
+      "name": "door",
+      "limit": -1,
+      "size": {"x": 16, "y": 16},
+      "origin": {"x": 0, "y": 0},
+      "originAnchored": true,
+      "shape": {
+        "label": "Rectangle",
+        "points": [
+          {"x": -1, "y": -1},
+          {"x": 1, "y": -1},
+          {"x": -1, "y": 1},
+          {"x": 1, "y": -1},
+          {"x": -1, "y": 1},
+          {"x": 1, "y": 1}
+        ]
+      },
+      "color": "#0032ffff",
+      "tileX": false,
+      "tileY": false,
+      "tileSize": {"x": 1, "y": 16},
+      "resizeableX": false,
+      "resizeableY": false,
+      "rotatable": false,
+      "rotationDegrees": 360,
+      "canFlipX": false,
+      "canFlipY": false,
+      "canSetColor": false,
+      "hasNodes": false,
+      "nodeLimit": 0,
+      "nodeDisplay": 0,
+      "nodeGhost": true,
+      "tags": [],
+      "values": [
+        {"name": "velocity.x", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": -100, "max": 100},
+        {"name": "velocity.y", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": 0, "max": 100}
+      ]
     }
   ],
   "tilesets": [

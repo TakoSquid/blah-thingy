@@ -3,6 +3,8 @@
 #include <blah.h>
 #include "world.h"
 #include "collider.h"
+#include "mover.h"
+#include <set>
 
 using namespace Blah;
 
@@ -12,9 +14,12 @@ namespace BT
 	{
 	public:
 		Collider* collider;
-		Point velocity;
+		Vec2 velocity;
 
 		void update() override;
+		void debug() override;
 	private:
+		std::set<Mover*> movers;
+		Vec2 remainer;
 	};
 }
