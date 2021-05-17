@@ -299,15 +299,6 @@ const Tileset* Content::find_tileset(const char* name)
 	return nullptr;
 }
 
-//const RoomInfo* Content::find_room(const Point& cell)
-//{
-//	for (auto& it : rooms)
-//		if (it.cell == cell)
-//			return &it;
-//
-//	return nullptr;
-//}
-
 const RoomInfo* Content::find_room(const String& name)
 {
 	for (auto& it : rooms)

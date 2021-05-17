@@ -109,12 +109,13 @@ void Player::update()
 		if (input_jump.pressed() && mover->on_ground())
 		{
 			input_jump.consume_press();
+
 			if(anim)
 				anim->scale = Vec2(m_facing * 0.65f, 1.4f);
+
 			mover->speed.x = input_move.value().x * max_air_speed;
 			m_jump_timer = jump_time;
 
-			// TODO: switch to Content (using folder() )
 			Content::play_sound("jump");
 		}
 	}
