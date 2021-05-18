@@ -39,5 +39,13 @@ namespace BT
 	{
 		if (ImGui::Button("activate"))
 			activate();
+
+		if (ImGui::BeginListBox("Listeners"))
+		{
+			for (const auto& sb : signal_boxes)
+				ImGui::Text("%s", sb->entity()->name.cstr());
+
+			ImGui::EndListBox();
+		}
 	}
 }
