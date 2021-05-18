@@ -4,6 +4,7 @@
   "height": 224,
   "offsetX": 512,
   "offsetY": 0,
+  "values": {"links": "proj:"},
   "layers": [
     {
       "name": "foreground",
@@ -71,7 +72,17 @@
       "gridCellsX": 256,
       "gridCellsY": 224,
       "entities": [
-        {"name": "button", "id": 0, "_eid": "53474931", "x": 200, "y": 48, "originX": -8, "originY": 8}
+        {"name": "button", "id": 0, "_eid": "53474931", "x": 200, "y": 48, "originX": -8, "originY": 8},
+        {
+          "name": "door",
+          "id": 1,
+          "_eid": "01892108",
+          "x": 5,
+          "y": 98,
+          "originX": 0,
+          "originY": 0,
+          "values": {"velocity.x": -40, "velocity.y": 0}
+        }
       ]
     },
     {

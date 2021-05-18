@@ -4,6 +4,7 @@
   "height": 256,
   "offsetX": 256,
   "offsetY": 0,
+  "values": {"links": "proj:"},
   "layers": [
     {
       "name": "foreground",

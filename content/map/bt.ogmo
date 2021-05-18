@@ -10,7 +10,15 @@
   "levelDefaultSize": {"x": 320, "y": 240},
   "levelMinSize": {"x": 256, "y": 160},
   "levelMaxSize": {"x": 1600, "y": 1600},
-  "levelValues": [],
+  "levelValues": [
+    {
+      "name": "links",
+      "definition": "Filepath",
+      "display": 0,
+      "defaults": "proj:",
+      "extensions": ["json"]
+    }
+  ],
   "defaultExportMode": ".json",
   "compactExport": false,
   "externalScript": "",

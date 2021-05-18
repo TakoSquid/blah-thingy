@@ -21,6 +21,5 @@ namespace BT
 	private:
 		bool m_pressed;
 		bool m_pressed_old;
-		void press();
 	};
 }

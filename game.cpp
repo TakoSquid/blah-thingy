@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 
 namespace BT {
@@ -183,32 +184,98 @@ namespace BT {
 			}
 		}
 
+		Vector<Entity*> entity_room;
+
 		for (auto& it : roomInfo->entities)
 		{
+
+			Entity* en = nullptr;
+
+			if (it.listeners.size() != 0) {
+				Log::info("%s has %d listeners !", it.name.cstr(), it.listeners.size());
+
+				for (const auto& list : it.listeners)
+				{
+					Log::info("%d", list);
+				}
+			}
+
 			if (it.name == "player")
 			{
 				if (!world.first<Player>())
-					Factory::player(&world, it.position + roomInfo->offset);
+					en = Factory::player(&world, it.position + roomInfo->offset);
 			}
 
 			if (it.name == "mech")
 			{
 				if (!world.first<Mech>())
-					Factory::mech(&world, it.position + roomInfo->offset);
+					en = Factory::mech(&world, it.position + roomInfo->offset);
 			}
 
 			if (it.name == "button")
 			{
-				Factory::button(&world, it.position + roomInfo->offset);
+				en = Factory::button(&world, it.position + roomInfo->offset);
 			}
 
 			if (it.name == "door")
 			{
-				auto en = Factory::door(&world, it.position + roomInfo->offset);
+				en = Factory::door(&world, it.position + roomInfo->offset);
 				auto sb = en->get<SignalBox>();
 				sb->on_signal_action = [it](SignalBox* self) {
 					self->get<MovingPlatform>()->velocity = Point(it.values["velocity.x"].get<float>(), it.values["velocity.y"].get<float>());
 				};
+			}
+
+			en->ogmoId = it.id;
+			entity_room.emplace_back(en);
+		}
+
+		// Links terrible implementation, I want to burry this code
+		{
+			for (auto& it : roomInfo->entities)
+			{
+				if (it.listeners.size() == 0)
+					continue;
+
+				Entity* target = nullptr;
+				Vector<Entity*> listeners;
+
+				for (auto& ent : entity_room)
+				{
+					if (ent->ogmoId == it.id)
+					{
+						target = ent;
+						break;
+					}
+				}
+
+				if (target) {
+					Log::info("Concerned : %s", target->name.cstr());
+				}
+				else
+				{
+					continue;
+				}
+
+				for (auto& ent : entity_room)
+				{
+					for (const auto& list_id : it.listeners)
+					{
+						if (ent->ogmoId == list_id) {
+							listeners.emplace_back(ent);
+							Log::info("Listener : %s", ent->name.cstr());
+						}
+
+					}
+				}
+
+				auto sb_target = target->get<SignalBox>();
+
+				for (const auto& list : listeners)
+				{
+					sb_target->addSignalBox(list->get<SignalBox>());
+				}
+
 			}
 		}
 

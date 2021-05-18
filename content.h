@@ -25,6 +25,7 @@ namespace BT {
 		String name;
 		int id;
 		json values;
+		Vector<int> listeners;
 	};
 
 	struct RoomInfo

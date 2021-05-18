@@ -82,6 +82,7 @@ namespace BT {
 		Blah::Point position;
 		Blah::Vec2 scale = Blah::Vec2::one;
 		float rotation = 0;
+		int ogmoId = -1;
 
 		World* world();
 		const World* world() const;

@@ -11,11 +11,6 @@ BT::Button::Button(bool pressed)
 {
 }
 
-void BT::Button::press()
-{
-	signal_box->activate();
-}
-
 void BT::Button::update()
 {
 	if (!trigger_zone->cached() && trigger_zone->check(Mask::player))
@@ -23,7 +18,7 @@ void BT::Button::update()
 
 	if (!m_pressed_old && m_pressed) {
 		Content::play_sound("button");
-		press();
+		signal_box->activate();
 	}
 
 	if(auto animator = entity()->get<Animator>())

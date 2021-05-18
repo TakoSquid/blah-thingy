@@ -266,6 +266,32 @@ void Content::load()
 			}
 		}
 
+		auto file_link = path() + "map/links/" + name.cstr() + "_links.json";
+
+		if (File::exists(file_link))
+		{
+			json j;
+			std::ifstream i(file_link);
+			i >> j;
+
+			// TODO : EW GROSS LOOPING STUFF, shoud use algorithm std library
+
+			for (const auto& it : j["entities"])
+			{
+				auto target = it["id"].get<int>();
+				auto listeners = it["listeners"].get<std::vector<int>>();
+
+				for (auto& ent : info.entities)
+				{
+					if (ent.id == target)
+					{
+						for (const auto& list : listeners)
+							ent.listeners.emplace_back(list);
+					}
+				}
+			}
+		}
+
 		rooms.push_back(info);
 	}
 }
