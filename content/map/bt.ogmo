@@ -86,7 +86,7 @@
       "limit": 1,
       "size": {"x": 8, "y": 12},
       "origin": {"x": 4, "y": 12},
-      "originAnchored": true,
+      "originAnchored": false,
       "shape": {
         "label": "Rectangle",
         "points": [
@@ -157,7 +157,7 @@
       "name": "button",
       "limit": -1,
       "size": {"x": 16, "y": 8},
-      "origin": {"x": -8, "y": 8},
+      "origin": {"x": 8, "y": 8},
       "originAnchored": true,
       "shape": {
         "label": "Rectangle",
@@ -189,11 +189,11 @@
       "values": []
     },
     {
-      "exportID": "01892108",
-      "name": "door",
+      "exportID": "51750835",
+      "name": "moving platform",
       "limit": -1,
-      "size": {"x": 16, "y": 16},
-      "origin": {"x": 0, "y": 0},
+      "size": {"x": 112, "y": 16},
+      "origin": {"x": 56, "y": 8},
       "originAnchored": true,
       "shape": {
         "label": "Rectangle",
@@ -206,10 +206,10 @@
           {"x": 1, "y": 1}
         ]
       },
-      "color": "#0032ffff",
+      "color": "#ff0000ff",
       "tileX": false,
       "tileY": false,
-      "tileSize": {"x": 1, "y": 16},
+      "tileSize": {"x": 16, "y": 16},
       "resizeableX": false,
       "resizeableY": false,
       "rotatable": false,
@@ -223,7 +223,7 @@
       "nodeGhost": true,
       "tags": [],
       "values": [
-        {"name": "velocity.x", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": -100, "max": 100},
+        {"name": "velocity.x", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": 0, "max": 100},
         {"name": "velocity.y", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": 0, "max": 100}
       ]
     }

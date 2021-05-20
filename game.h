@@ -44,6 +44,7 @@ namespace BT
 		bool m_draw_jumpthrough;
 		bool m_draw_slope;
 
+		bool m_draw_sb;
 
 		Vector<Entity*> m_last_entities;
 

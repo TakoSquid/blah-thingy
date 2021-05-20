@@ -48,4 +48,13 @@ namespace BT
 			ImGui::EndListBox();
 		}
 	}
+	const Vector<SignalBox*> SignalBox::get_listeners() const
+	{
+		Vector<SignalBox*> sbs;
+
+		for (const auto& sb : signal_boxes)
+			sbs.emplace_back(sb);
+
+		return sbs;
+	}
 }

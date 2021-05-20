@@ -60,7 +60,6 @@ namespace BT {
 
 		load_room("0x0");
 		load_room("1x0");
-		load_room("2x0");
 
 		mouse_entity = world.add_entity();
 		mouse_entity->add<Collider>(Collider::make_rect(RectI(Point::zero, Point::one)));
@@ -217,9 +216,9 @@ namespace BT {
 				en = Factory::button(&world, it.position + roomInfo->offset);
 			}
 
-			if (it.name == "door")
+			if (it.name == "moving platform")
 			{
-				en = Factory::door(&world, it.position + roomInfo->offset);
+				en = Factory::moving_platform(&world, it.position + roomInfo->offset);
 				auto sb = en->get<SignalBox>();
 				sb->on_signal_action = [it](SignalBox* self) {
 					self->get<MovingPlatform>()->velocity = Point(it.values["velocity.x"].get<float>(), it.values["velocity.y"].get<float>());
@@ -314,7 +313,7 @@ namespace BT {
 				if (auto found_room = Content::find_room_by_pos(player_pos))
 				{
 					room = found_room;
-					//camera.lerp_to(room->offset);
+					camera.lerp_to(room->offset);
 				}
 				else
 				{
@@ -326,7 +325,7 @@ namespace BT {
 				player_pos = player->entity()->position;
 
 			//camera.set_position(pos - Point(width / 2, height / 2));
-			camera.set_position(Point(Calc::min(Calc::max(0, player_pos.x - 50), width * 2), 0));
+			//camera.set_position(Point(Calc::min(Calc::max(0, player_pos.x - 50), width * 2), 0));
 
 			camera.update();
 		}
@@ -338,7 +337,7 @@ namespace BT {
 			static Point pixel_hovered = Point::zero;
 			static Point ingame_position = Point::zero;
 
-			// Game Display
+			// Game and Debug Display TODO : untangle
 			ImGui::Begin("Game", 0, ImGuiWindowFlags_AlwaysAutoResize);
 
 			if (game_texture) {
@@ -450,6 +449,7 @@ namespace BT {
 			ImGui::Checkbox("Draw solids", &m_draw_solid);
 			ImGui::Checkbox("Draw jumpthroughs", &m_draw_jumpthrough);
 			ImGui::Checkbox("Draw slopes", &m_draw_slope);
+			ImGui::Checkbox("Draw signal boxes", &m_draw_sb);
 			ImGui::End();
 
 			// Com Tree
@@ -594,6 +594,20 @@ namespace BT {
 						collider->render(batch);
 
 					collider = (Collider*)collider->next();
+				}
+			}
+
+			if (m_draw_sb)
+			{
+				auto sb = world.first<SignalBox>();
+				while (sb)
+				{
+					for (const auto& targets : sb->get_listeners()) {
+						batch.line(sb->entity()->position, targets->entity()->position, 1.0f, Color::red);
+						batch.arrow_head(targets->entity()->position, sb->entity()->position, 6.0f, Color::red);
+					}
+
+					sb = (SignalBox*)sb->next();
 				}
 			}
 

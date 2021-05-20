@@ -120,14 +120,14 @@ Entity* BT::Factory::button(World* world, Point point)
 	return en;
 }
 
-Entity* BT::Factory::door(World* world, Point point)
+Entity* BT::Factory::moving_platform(World* world, Point point)
 {
 	auto en = world->add_entity(point);
-	en->name = "door";
+	en->name = "moving platform";
 
 	auto mov = en->add(MovingPlatform());
 
-	auto hitbox = en->add(Collider::make_rect(RectI(-56, -16, 112, 16)));
+	auto hitbox = en->add(Collider::make_rect(RectI(-56, -8, 112, 16)));
 	hitbox->mask = Mask::solid;
 	mov->collider = hitbox;
 
@@ -138,6 +138,7 @@ Entity* BT::Factory::door(World* world, Point point)
 	};
 
 	auto an = en->add(Animator("door"));
+	an->offset = Point(0, 8);
 	an->depth = -1;
 
 	return en;

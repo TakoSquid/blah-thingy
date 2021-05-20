@@ -16,6 +16,7 @@ namespace BT
 		void activate();
 
 		void debug() override;
+		const Vector<SignalBox*> get_listeners() const;
 
 		std::function<void(SignalBox* self)> on_signal_action;
 	private:

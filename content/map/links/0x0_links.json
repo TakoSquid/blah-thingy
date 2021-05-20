@@ -1,12 +1,8 @@
 {
 	"entities": [
 		{
-			"id": 9,
-			"listeners": [10]
-		},
-		{
-			"id": 11,
-			"listeners": [12]
+			"id": 0,
+			"listeners": [1]
 		}
 	]
 }
