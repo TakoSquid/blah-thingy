@@ -120,21 +120,23 @@ Entity* BT::Factory::button(World* world, Point point)
 	return en;
 }
 
-Entity* BT::Factory::moving_platform(World* world, Point point)
+Entity* BT::Factory::moving_platform(World* world, Point point, float speed, Vector<Point> checkpoints)
 {
 	auto en = world->add_entity(point);
 	en->name = "moving platform";
 
 	auto mov = en->add(MovingPlatform());
+	mov->speed = 0;
+	mov->checkpoints = checkpoints;
 
 	auto hitbox = en->add(Collider::make_rect(RectI(-56, -8, 112, 16)));
 	hitbox->mask = Mask::solid;
 	mov->collider = hitbox;
 
 	auto sb = en->add(SignalBox());
-	sb->on_signal_action = [](SignalBox* self)
+	sb->on_signal_action = [speed](SignalBox* self)
 	{
-		self->get<MovingPlatform>()->velocity = Point(40, 20);
+		self->get<MovingPlatform>()->speed = speed;
 	};
 
 	auto an = en->add(Animator("door"));

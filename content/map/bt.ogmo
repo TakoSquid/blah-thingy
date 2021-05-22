@@ -86,7 +86,7 @@
       "limit": 1,
       "size": {"x": 8, "y": 12},
       "origin": {"x": 4, "y": 12},
-      "originAnchored": false,
+      "originAnchored": true,
       "shape": {
         "label": "Rectangle",
         "points": [
@@ -217,14 +217,13 @@
       "canFlipX": false,
       "canFlipY": false,
       "canSetColor": false,
-      "hasNodes": false,
+      "hasNodes": true,
       "nodeLimit": 0,
       "nodeDisplay": 0,
       "nodeGhost": true,
       "tags": [],
       "values": [
-        {"name": "velocity.x", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": 0, "max": 100},
-        {"name": "velocity.y", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": 0, "max": 100}
+        {"name": "speed", "definition": "Float", "display": 0, "defaults": 0, "bounded": false, "min": 0, "max": 100}
       ]
     }
   ],

@@ -244,10 +244,10 @@ void Content::load()
 			}
 			else
 			{
-				ParsedEntity parsedEntity;
 
 				for (auto& it : it["entities"])
 				{
+					ParsedEntity parsedEntity;
 					parsedEntity.name = it["name"].get<std::string>().c_str();
 					parsedEntity.position.x = it["x"].get<int>();
 					parsedEntity.position.y = it["y"].get<int>();
@@ -256,10 +256,17 @@ void Content::load()
 					if (!it["values"].is_null())
 					{
 						parsedEntity.values = it["values"];
+
+						if (!it["nodes"].is_null())
+						{
+							//Log::info("yes");
+							parsedEntity.values["nodes"] = it["nodes"];
+						}
 					}
 
-					/*if(it["values"])
-						parsedEntity.values = it["values"];*/
+					std::cout << parsedEntity.name << std::endl;
+
+					std::cout << parsedEntity.values.dump(4) << std::endl;
 
 					info.entities.push_back(parsedEntity);
 				}

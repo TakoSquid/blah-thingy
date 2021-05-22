@@ -36,5 +36,6 @@ namespace BT
 		Collider* on_slope(int dist = 1) const;
 
 		void update() override;
+		void debug() override;
 	};
 }

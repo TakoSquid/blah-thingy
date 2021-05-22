@@ -1,5 +1,6 @@
 #include "mover.h"
 #include "masks.h"
+#include "imgui.h"
 
 #include <iostream>
 
@@ -164,4 +165,9 @@ void Mover::update()
 
 	move_x(to_move.x);
 	move_y(to_move.y);
+}
+
+void Mover::debug()
+{
+	ImGui::Text("speed : {%f : %f}", speed.x, speed.y);
 }

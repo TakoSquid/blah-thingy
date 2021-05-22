@@ -14,6 +14,6 @@ namespace BT
 		Entity* debugSolid(World* world, Point pos, Point size, uint32_t mask = Mask::solid);
 		Entity* mech(World* world, Point point);
 		Entity* button(World* world, Point point);
-		Entity* moving_platform(World* world, Point point);
+		Entity* moving_platform(World* world, Point point, float speed, Vector<Point> checkpoints);
 	}
 }
