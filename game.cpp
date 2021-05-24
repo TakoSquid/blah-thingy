@@ -19,12 +19,9 @@
 #include <sstream>
 #include <algorithm>
 
-
 namespace BT {
 	namespace {
-		static int index = 0;
 		Point player_pos;
-		const String txt = "salut a tous c'est tako\nc'est hibya en plus aigu";
 		int display_scale = 3;
 		TextureRef game_texture = nullptr;
 
@@ -42,12 +39,12 @@ namespace BT {
 
 		Content::load();
 
-		Log::info(Content::path() + "sprites/mech2.png");
+		room = Content::find_room("2x0");
 
-		room = Content::find_room("0x0");
+		camera = Camera();
 
-		camera = Camera(Vec2::zero, 0);
-		camera.set_position(room->offset);
+		camera.set_allowed_area(Rect(room->offset, room->size));
+		camera.using_allowed_area = true;
 
 		buffer = FrameBuffer::create(width, height);
 
@@ -58,8 +55,11 @@ namespace BT {
 		m_draw_jumpthrough = false;
 		m_draw_slope = false;
 
+		load_room("2x0");
+		load_room("-1x0");
 		load_room("0x0");
 		load_room("1x0");
+		load_room("2x1");
 
 		mouse_entity = world.add_entity();
 		mouse_entity->add<Collider>(Collider::make_rect(RectI(Point::zero, Point::one)));
@@ -77,156 +77,178 @@ namespace BT {
 		for (auto& it : roomInfo->layers)
 		{
 			// solid
-			if (it.name == "solid")
 			{
-				auto en = world.add_entity(roomInfo->offset);
-				en->name = roomInfo->name + " : solids";
-				auto solid = en->add(Collider::make_grid(16, it.column, it.row));
-				solid->mask = Mask::solid;
+				if (it.name == "solid")
+				{
+					auto en = world.add_entity(roomInfo->offset);
+					en->name = roomInfo->name + " : solids";
+					auto solid = en->add(Collider::make_grid(16, it.column, it.row));
+					solid->mask = Mask::solid;
 
-				for (std::size_t i = 0; i != it.data.size(); ++i) {
-					if (it.data[i] == -1)
-						continue;
-					int x = i % it.column;
-					int y = Calc::floor(i / it.column);
+					for (std::size_t i = 0; i != it.data.size(); ++i) {
+						if (it.data[i] == -1)
+							continue;
+						int x = i % it.column;
+						int y = Calc::floor(i / it.column);
 
-					solid->set_cell(x, y, true);
+						solid->set_cell(x, y, true);
+					}
 				}
 			}
 
 			// jumpthru
-			if (it.name == "jumpthru")
 			{
-				// TODO: Care ! 16*16 in Ogmo transformed in 8*8 here
+				if (it.name == "jumpthru")
+				{
+					// TODO: Care ! 16*16 in Ogmo transformed in 8*8 here
 
-				auto en = world.add_entity(roomInfo->offset);
-				en->name = roomInfo->name + " : jumptru";
-				auto jumpthru = en->add(Collider::make_grid(8, it.column * 2, it.row * 2));
-				jumpthru->mask = Mask::jumpthru;
+					auto en = world.add_entity(roomInfo->offset);
+					en->name = roomInfo->name + " : jumptru";
+					auto jumpthru = en->add(Collider::make_grid(8, it.column * 2, it.row * 2));
+					jumpthru->mask = Mask::jumpthru;
 
-				for (std::size_t i = 0; i != it.data.size(); ++i) {
-					if (it.data[i] == -1)
-						continue;
-					int x = i % it.column;
-					int y = Calc::floor(i / it.column);
+					for (std::size_t i = 0; i != it.data.size(); ++i) {
+						if (it.data[i] == -1)
+							continue;
 
-					jumpthru->set_cell(x * 2, y * 2, true);
-					jumpthru->set_cell(x * 2 + 1, y * 2, true);
+						int x = i % it.column;
+						int y = Calc::floor(i / it.column);
+
+						jumpthru->set_cell(x * 2, y * 2, true);
+						jumpthru->set_cell(x * 2 + 1, y * 2, true);
+					}
 				}
 			}
 
 			// slope
-			if (it.name == "slope")
 			{
-				for (std::size_t i = 0; i != it.data.size(); ++i)
+				if (it.name == "slope")
 				{
-					int id = it.data[i];
-
-					if (id == -1)
-						continue;
-					int x = i % it.column;
-					int y = Calc::floor(i / it.column);
-
-					Point top_left = Point(x * tile_width, y * tile_height);
-
-					int facing = 1;
-					if (id == 0 || id == 2 || id == 3)
-						facing = -1;
-
-					Point y_offset = Point();
-					int height = 16;
-
-					if (id == 2 || id == 5)
+					for (std::size_t i = 0; i != it.data.size(); ++i)
 					{
-						y_offset.y = 8;
-						height = 8;
+						int id = it.data[i];
+
+						if (id == -1)
+							continue;
+						int x = i % it.column;
+						int y = Calc::floor(i / it.column);
+
+						Point top_left = Point(x * tile_width, y * tile_height);
+
+						int facing = 1;
+						if (id == 0 || id == 2 || id == 3)
+							facing = -1;
+
+						Point y_offset = Point();
+						int height = 16;
+
+						if (id == 2 || id == 5)
+						{
+							y_offset.y = 8;
+							height = 8;
+						}
+
+						if (id == 3 || id == 4)
+						{
+							height = 8;
+						}
+
+						auto en = world.add_entity(roomInfo->offset);
+						en->name = roomInfo->name + " : slope";
+						auto slope = en->add(Collider::make_slope(RectI(top_left + y_offset, Point(16, height)), facing));
+
+						slope->mask = Mask::slope;
 					}
-
-					if (id == 3 || id == 4)
-					{
-						height = 8;
-					}
-
-					auto en = world.add_entity(roomInfo->offset);
-					en->name = roomInfo->name + " : slope";
-					auto slope = en->add(Collider::make_slope(RectI(top_left + y_offset, Point(16, height)), facing));
-
-					slope->mask = Mask::slope;
 				}
 			}
 
-			if (it.name == "foreground" || it.name == "background")
+			// scenery
 			{
-				auto en = world.add_entity(roomInfo->offset);
-				en->name = roomInfo->name + " : " + it.name;
-				auto tilemap = en->add(Tilemap(16, 16, it.column, it.row));
-				auto tileset = Content::find_tileset(it.tileset);
-
-				for (std::size_t i = 0; i != it.data.size(); ++i) {
-					if (it.data[i] == -1)
-						continue;
-					int x = i % it.column;
-					int y = Calc::floor(i / it.column);
-
-					tilemap->set_cell(x, y, &tileset->tiles[it.data[i]]);
-				}
-
-				if (it.name == "foreground")
+				if (it.name == "foreground" || it.name == "background")
 				{
-					tilemap->depth = -1;
-				}
+					auto en = world.add_entity(roomInfo->offset);
+					en->name = roomInfo->name + " : " + it.name;
+					auto tilemap = en->add(Tilemap(16, 16, it.column, it.row));
+					auto tileset = Content::find_tileset(it.tileset);
 
-				if (it.name == "background")
-				{
-					tilemap->depth = 1;
+					for (std::size_t i = 0; i != it.data.size(); ++i) {
+						if (it.data[i] == -1)
+							continue;
+						int x = i % it.column;
+						int y = Calc::floor(i / it.column);
+
+						tilemap->set_cell(x, y, &tileset->tiles[it.data[i]]);
+					}
+
+					if (it.name == "foreground")
+					{
+						tilemap->depth = -1;
+					}
+
+					if (it.name == "background")
+					{
+						tilemap->depth = 1;
+					}
 				}
 			}
 		}
 
-		Vector<Entity*> entity_room;
+		// instantiate parsed entities
 
-		for (auto& it : roomInfo->entities)
+		Vector<Entity*> entity_room; // Entities being loaded, dropped when room is loaded
+
 		{
+			for (auto& it : roomInfo->entities)
+			{
+				Entity* en = nullptr;
 
-			Entity* en = nullptr;
+				if (it.listeners.size() != 0) {
+					Log::info("%s has %d listeners !", it.name.cstr(), it.listeners.size());
 
-			if (it.listeners.size() != 0) {
-				Log::info("%s has %d listeners !", it.name.cstr(), it.listeners.size());
+					for (const auto& list : it.listeners)
+					{
+						Log::info("%d", list);
+					}
+				}
 
-				for (const auto& list : it.listeners)
+				if (it.name == "player")
 				{
-					Log::info("%d", list);
+					if (!world.first<Player>())
+						en = Factory::player(&world, it.position + roomInfo->offset);
+				}
+
+				if (it.name == "mech")
+				{
+					if (!world.first<Mech>())
+						en = Factory::mech(&world, it.position + roomInfo->offset);
+				}
+
+				if (it.name == "button")
+				{
+					en = Factory::button(&world, it.position + roomInfo->offset);
+				}
+
+				if (it.name == "moving platform")
+				{
+					Vector<Point> checkpoints;
+
+					checkpoints.emplace_back(it.position + roomInfo->offset);
+
+					for (const auto& elem : it.values["nodes"])
+					{
+						checkpoints.emplace_back(elem["x"].get<int>() + roomInfo->offset.x, elem["y"].get<int>() + roomInfo->offset.y);
+					}
+
+					en = Factory::moving_platform(&world, it.position + roomInfo->offset, it.values["speed"], checkpoints);
+
+				}
+
+				if (en)
+				{
+					en->ogmoId = it.id;
+					entity_room.emplace_back(en);
 				}
 			}
-
-			if (it.name == "player")
-			{
-				if (!world.first<Player>())
-					en = Factory::player(&world, it.position + roomInfo->offset);
-			}
-
-			if (it.name == "mech")
-			{
-				if (!world.first<Mech>())
-					en = Factory::mech(&world, it.position + roomInfo->offset);
-			}
-
-			if (it.name == "button")
-			{
-				en = Factory::button(&world, it.position + roomInfo->offset);
-			}
-
-			if (it.name == "moving platform")
-			{
-				en = Factory::moving_platform(&world, it.position + roomInfo->offset);
-				auto sb = en->get<SignalBox>();
-				sb->on_signal_action = [it](SignalBox* self) {
-					self->get<MovingPlatform>()->velocity = Point(it.values["velocity.x"].get<float>(), it.values["velocity.y"].get<float>());
-				};
-			}
-
-			en->ogmoId = it.id;
-			entity_room.emplace_back(en);
 		}
 
 		// Links terrible implementation, I want to burry this code
@@ -264,7 +286,6 @@ namespace BT {
 							listeners.emplace_back(ent);
 							Log::info("Listener : %s", ent->name.cstr());
 						}
-
 					}
 				}
 
@@ -274,10 +295,10 @@ namespace BT {
 				{
 					sb_target->addSignalBox(list->get<SignalBox>());
 				}
-
 			}
 		}
 
+		// ???
 		DearImgui::game = buffer->attachment(0);
 	}
 
@@ -286,14 +307,15 @@ namespace BT {
 	}
 
 	void Game::update() {
-
 		static bool paused = false;
 
-		ImGui::Begin("CHAOS CONTROL", 0, ImGuiWindowFlags_AlwaysAutoResize);
-		if (ImGui::Button("play/pause"))
-			paused = !paused;
-		ImGui::Text("Paused : %d", paused);
-		ImGui::End();
+		// Play pause window
+		{
+			ImGui::Begin("CHAOS CONTROL", 0, ImGuiWindowFlags_AlwaysAutoResize);
+			if (ImGui::Button(paused ? "Pause" : "Play"))
+				paused = !paused;
+			ImGui::End();
+		}
 
 		if (!paused) {
 			if (auto player = world.first<Player>())
@@ -313,7 +335,22 @@ namespace BT {
 				if (auto found_room = Content::find_room_by_pos(player_pos))
 				{
 					room = found_room;
-					camera.lerp_to(room->offset);
+
+					auto allowed_area = Rect(found_room->offset, found_room->size);
+					auto camera_pos = camera.get_position();
+					camera.set_size(Vec2(room->cam_size));
+
+					auto camera_size = camera.get_size();
+
+					auto target_x = Calc::clamp(camera_pos.x - camera_size.x, allowed_area.left(), allowed_area.right() - camera_size.x);
+					auto target_y = Calc::clamp(camera_pos.y - camera_size.y, allowed_area.top(), allowed_area.bottom() - camera_size.y);
+
+
+					camera.lerp_to(Vec2(target_x, target_y), room->cam_scale);
+					
+					camera.set_scale(room->cam_scale);
+					camera.set_allowed_area(allowed_area);
+					camera.using_allowed_area = true;
 				}
 				else
 				{
@@ -325,7 +362,7 @@ namespace BT {
 				player_pos = player->entity()->position;
 
 			//camera.set_position(pos - Point(width / 2, height / 2));
-			//camera.set_position(Point(Calc::min(Calc::max(0, player_pos.x - 50), width * 2), 0));
+			camera.set_position(Vec2(player_pos) - camera.get_size()/2);
 
 			camera.update();
 		}
@@ -338,276 +375,300 @@ namespace BT {
 			static Point ingame_position = Point::zero;
 
 			// Game and Debug Display TODO : untangle
-			ImGui::Begin("Game", 0, ImGuiWindowFlags_AlwaysAutoResize);
+			{
+				ImGui::Begin("Game", 0, ImGuiWindowFlags_AlwaysAutoResize);
 
-			if (game_texture) {
-				ImVec2 win_pos = ImGui::GetWindowPos();
+				if (game_texture) {
+					ImVec2 win_pos = ImGui::GetWindowPos();
 
-				DearImgui::display_texture(game_texture, Vec2(game_texture->width(), game_texture->height()) * display_scale, Vec2(0, 1), Vec2(1, 0));
+					DearImgui::display_texture(game_texture, Vec2(game_texture->width(), game_texture->height()) * display_scale, Vec2(0, 1), Vec2(1, 0));
 
-				if (ImGui::IsItemHovered())
-				{
-					pixel_hovered.x = (int)((io.MousePos.x - (pos.x + win_pos.x)) / display_scale);
-					pixel_hovered.y = (int)((io.MousePos.y - (pos.y + win_pos.y)) / display_scale);
-
-					ingame_position = Point(pixel_hovered.x + (int)camera.get_position().x, pixel_hovered.y + (int)camera.get_position().y);
-
-					ImGui::BeginTooltip();
-					ImGui::Text("mouse pos : {%d:%d}", (int)io.MousePos.x, (int)io.MousePos.y);
-					ImGui::Text("cursor pos : {%d:%d}", (int)pos.x, (int)pos.y);
-					ImGui::Text("win pos : {%d:%d}", (int)win_pos.x, (int)win_pos.y);
-					ImGui::Text("pixel hovered : {%d:%d}", pixel_hovered.x, pixel_hovered.y);
-					ImGui::Text("in game : {%d:%d}", ingame_position.x, ingame_position.y);
-
-					if (ImGui::IsMouseClicked(0))
+					if (ImGui::IsItemHovered())
 					{
-						Vector<Entity*> found_entities;
-						mouse_entity->position = ingame_position;
-						Collider* mouse_col = mouse_entity->get<Collider>();
-						found_entities.clear();
+						pixel_hovered.x = (int)((io.MousePos.x - (pos.x + win_pos.x)) / display_scale);
+						pixel_hovered.y = (int)((io.MousePos.y - (pos.y + win_pos.y)) / display_scale);
 
-						auto collider = world.first<Collider>();
-						while (collider)
+						ingame_position = Point(pixel_hovered.x + (int)camera.get_position().x, pixel_hovered.y + (int)camera.get_position().y);
+
+						ImGui::BeginTooltip();
+						ImGui::Text("mouse pos : {%d:%d}", (int)io.MousePos.x, (int)io.MousePos.y);
+						ImGui::Text("cursor pos : {%d:%d}", (int)pos.x, (int)pos.y);
+						ImGui::Text("win pos : {%d:%d}", (int)win_pos.x, (int)win_pos.y);
+						ImGui::Text("pixel hovered : {%d:%d}", pixel_hovered.x, pixel_hovered.y);
+						ImGui::Text("in game : {%d:%d}", ingame_position.x, ingame_position.y);
+
+						if (ImGui::IsMouseClicked(0))
 						{
-							if (collider == mouse_col) {
-								collider = (Collider*)collider->next();
-								continue;
-							}
+							Vector<Entity*> found_entities;
+							mouse_entity->position = ingame_position;
+							Collider* mouse_col = mouse_entity->get<Collider>();
+							found_entities.clear();
 
-							if (mouse_col->overlaps(collider))
+							auto collider = world.first<Collider>();
+							while (collider)
 							{
-								found_entities.emplace_back(collider->entity());
+								if (collider == mouse_col) {
+									collider = (Collider*)collider->next();
+									continue;
+								}
+
+								if (mouse_col->overlaps(collider))
+								{
+									found_entities.emplace_back(collider->entity());
+								}
+
+								collider = (Collider*)collider->next();
 							}
 
-							collider = (Collider*)collider->next();
+							if (found_entities.size() > 0)
+								selected = found_entities.front();
 						}
-
-						if (found_entities.size() > 0)
-							selected = found_entities.front();
+						ImGui::EndTooltip();
 					}
-					ImGui::EndTooltip();
-				}
 
-				if (selected)
-				{
-					static Vec2 selected_cursorpos;
-
-					if (selected_cursorpos.x + right_arrow->width() <= width * display_scale && selected_cursorpos.y <= height * display_scale)
+					if (selected)
 					{
-						static Point mouse_pivot_offset;
+						static Vec2 selected_cursorpos;
 
-						ImGui::SetCursorPos(ImVec2(selected_cursorpos.x, selected_cursorpos.y - right_arrow->height() / 2));
-						DearImgui::display_texture(right_arrow, Vec2(right_arrow->width(), right_arrow->height()));
-
-						static bool right_arrow_active = false;
-						if (right_arrow_active)
+						if (selected_cursorpos.x + right_arrow->width() <= width * display_scale && selected_cursorpos.y <= height * display_scale)
 						{
-							selected->position = Point(ingame_position.x, selected->position.y) - mouse_pivot_offset;
-						}
+							static Point mouse_pivot_offset;
 
-						if (ImGui::IsItemClicked() || (right_arrow_active && !ImGui::IsItemClicked() && ImGui::IsMouseClicked(0)))
-						{
-							right_arrow_active = !right_arrow_active;
+							ImGui::SetCursorPos(ImVec2(selected_cursorpos.x, selected_cursorpos.y - right_arrow->height() / 2));
+							DearImgui::display_texture(right_arrow, Vec2(right_arrow->width(), right_arrow->height()));
+
+							static bool right_arrow_active = false;
 							if (right_arrow_active)
-								mouse_pivot_offset = Point((ingame_position - selected->position).x, 0);
+							{
+								selected->position = Point(ingame_position.x, selected->position.y) - mouse_pivot_offset;
+							}
+
+							if (ImGui::IsItemClicked() || (right_arrow_active && !ImGui::IsItemClicked() && ImGui::IsMouseClicked(0)))
+							{
+								right_arrow_active = !right_arrow_active;
+								if (right_arrow_active)
+									mouse_pivot_offset = Point((ingame_position - selected->position).x, 0);
+							}
+
+							ImGui::SetCursorPos(ImVec2(selected_cursorpos.x - up_arrow->width() / 2, selected_cursorpos.y - up_arrow->height()));
+							DearImgui::display_texture(up_arrow, Vec2(up_arrow->width(), up_arrow->height()));
+
+							static bool up_arrow_active = false;
+							if (up_arrow_active)
+							{
+								selected->position = Point(selected->position.x, ingame_position.y) - mouse_pivot_offset;
+							}
+
+							if (ImGui::IsItemClicked() || (up_arrow_active && !ImGui::IsItemClicked() && ImGui::IsMouseClicked(0)))
+							{
+								up_arrow_active = !up_arrow_active;
+								if (up_arrow_active)
+									mouse_pivot_offset = Point(0, (ingame_position - selected->position).y);
+							}
+
+							ImGui::SetCursorPos(ImVec2(selected_cursorpos.x - pivot->width() / 2, selected_cursorpos.y - pivot->height() / 2));
+							DearImgui::display_texture(pivot, Vec2(pivot->width(), pivot->height()));
 						}
 
-						ImGui::SetCursorPos(ImVec2(selected_cursorpos.x - up_arrow->width() / 2, selected_cursorpos.y - up_arrow->height()));
-						DearImgui::display_texture(up_arrow, Vec2(up_arrow->width(), up_arrow->height()));
-
-						static bool up_arrow_active = false;
-						if (up_arrow_active)
-						{
-							selected->position = Point(selected->position.x, ingame_position.y) - mouse_pivot_offset;
-						}
-
-						if (ImGui::IsItemClicked() || (up_arrow_active && !ImGui::IsItemClicked() && ImGui::IsMouseClicked(0)))
-						{
-							up_arrow_active = !up_arrow_active;
-							if(up_arrow_active)
-								mouse_pivot_offset = Point(0, (ingame_position - selected->position).y);
-						}
-
-						ImGui::SetCursorPos(ImVec2(selected_cursorpos.x - pivot->width() / 2, selected_cursorpos.y - pivot->height() / 2));
-						DearImgui::display_texture(pivot, Vec2(pivot->width(), pivot->height()));
-
+						selected_cursorpos = (Vec2(selected->position) - camera.get_position()) * display_scale + Vec2(pos.x, pos.y);
 					}
-
-					selected_cursorpos = (Vec2(selected->position) - camera.get_position()) * display_scale + Vec2(pos.x, pos.y);
-
 				}
-			}
 
-			ImGui::End();
+				ImGui::End();
+			}
 
 			// Check boxes for display options
-			ImGui::Begin("Display option", 0, ImGuiWindowFlags_AlwaysAutoResize);
-			ImGui::PushItemWidth(100);
-			ImGui::SliderInt("Scale", &display_scale, 1, 5);
-			ImGui::Checkbox("Draw pivots", &m_draw_pivot);
-			ImGui::Checkbox("Draw colliders", &m_draw_colliders);
-			ImGui::Checkbox("Draw solids", &m_draw_solid);
-			ImGui::Checkbox("Draw jumpthroughs", &m_draw_jumpthrough);
-			ImGui::Checkbox("Draw slopes", &m_draw_slope);
-			ImGui::Checkbox("Draw signal boxes", &m_draw_sb);
-			ImGui::End();
-
-			// Com Tree
-			ImGui::Begin("COM Tree", 0, ImGuiWindowFlags_AlwaysAutoResize);
-
-			auto entity = world.first_entity();
-			while (entity)
 			{
-				auto next = entity->next();
-				auto components = entity->components();
-
-				ImGuiTreeNodeFlags node_flags = (entity == selected) ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None;
-
-				bool tree_open = ImGui::TreeNodeEx((void*)entity, node_flags, "%s", entity->name.cstr());
-
-				if (ImGui::IsItemClicked())
-					selected = entity;
-
-				if (tree_open) {
-					for (const auto& c : components)
-					{
-						ImGui::Text("%s", c->name().cstr());
-					}
-
-					ImGui::TreePop();
-				}
-
-				entity = next;
+				ImGui::Begin("Display option", 0, ImGuiWindowFlags_AlwaysAutoResize);
+				ImGui::PushItemWidth(100);
+				ImGui::SliderInt("Scale", &display_scale, 1, 5);
+				ImGui::Checkbox("Draw pivots", &m_draw_pivot);
+				ImGui::Checkbox("Draw colliders", &m_draw_colliders);
+				ImGui::Checkbox("Draw solids", &m_draw_solid);
+				ImGui::Checkbox("Draw jumpthroughs", &m_draw_jumpthrough);
+				ImGui::Checkbox("Draw slopes", &m_draw_slope);
+				ImGui::Checkbox("Draw signal boxes", &m_draw_sb);
+				ImGui::Checkbox("Draw cam info", &m_draw_cam);
+				ImGui::End();
 			}
 
-			ImGui::End();
-
-			// Entity selected
-			ImGui::Begin("Entity properties", 0, ImGuiWindowFlags_AlwaysAutoResize);
-			if (selected)
+			// Com Tree
 			{
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text(selected->name.cstr());
-				ImGui::SameLine(ImGui::GetWindowWidth() - 25);
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));
-				bool e_press_delete = ImGui::Button("x");
-				ImGui::PopStyleColor();
+				ImGui::Begin("COM Tree", 0, ImGuiWindowFlags_AlwaysAutoResize);
 
-				ImGui::Checkbox("Visible", &(selected->visible));
-				ImGui::SameLine();
-				ImGui::Checkbox("Active", &(selected->active));
-
-				int pos[2] = { selected->position.x , selected->position.y };
-				ImGui::InputInt2("Position", pos);
-				selected->position = Point(pos[0], pos[1]);
-				int scale[2] = { selected->scale.x , selected->scale.y };
-				ImGui::InputInt2("Scale", scale);
-				selected->scale = Point(scale[0], scale[1]);
-				ImGui::SliderFloat("Rotation", &selected->rotation, 0, Calc::PI * 2);
-
-				for (auto& c : selected->components())
+				auto entity = world.first_entity();
+				while (entity)
 				{
-					ImGui::Separator();
+					auto next = entity->next();
+					auto components = entity->components();
 
-					std::stringstream ss;
-					ss << c->name().cstr() << "##" << &c;
+					ImGuiTreeNodeFlags node_flags = (entity == selected) ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None;
 
-					ImGui::AlignTextToFramePadding();
-					//bool tree_open = ImGui::TreeNodeEx((void*)entity, node_flags, "%s", entity->name.cstr());
-					bool component_open = ImGui::TreeNodeEx(ss.str().c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
+					bool tree_open = ImGui::TreeNodeEx((void*)entity, node_flags, "%s", entity->name.cstr());
 
-					ss.str("");
-					ss << "x##" << &c;
-					ImGui::SameLine(ImGui::GetWindowWidth() - 25);
-					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));
-					bool c_press_delete = ImGui::Button(ss.str().c_str());
-					ImGui::PopStyleColor();
+					if (ImGui::IsItemClicked())
+						selected = entity;
 
-					if (component_open)
-					{
-						ss.str("");
-						ss << "visible##" << &c;
-						ImGui::Checkbox(ss.str().c_str(), &(c->visible));
-						ImGui::SameLine();
-						ss.str("");
-						ss << "active##" << &c;
-						ImGui::Checkbox(ss.str().c_str(), &(c->active));
-						ImGui::SameLine();
-						ss.str("");
-						ss << "depth##" << &c;
-						ImGui::PushItemWidth(80);
-						ImGui::InputInt(ss.str().c_str(), &(c->depth));
-						ImGui::Separator();
-						c->debug();
+					if (tree_open) {
+						for (const auto& c : components)
+						{
+							ImGui::Text("%s", c->name().cstr());
+						}
+
 						ImGui::TreePop();
 					}
 
-					if (c_press_delete)
-					{
-						c->destroy();
-					}
+					entity = next;
 				}
 
-				if (e_press_delete)
-				{
-					selected->destroy();
-					selected = nullptr;
-				}
+				ImGui::End();
 			}
-			ImGui::End();
+
+			// Entity selected
+			{
+				ImGui::Begin("Entity properties", 0, ImGuiWindowFlags_AlwaysAutoResize);
+				if (selected)
+				{
+					ImGui::AlignTextToFramePadding();
+					ImGui::Text(selected->name.cstr());
+					ImGui::SameLine(ImGui::GetWindowWidth() - 25);
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));
+					bool e_press_delete = ImGui::Button("x");
+					ImGui::PopStyleColor();
+
+					ImGui::Checkbox("Visible", &(selected->visible));
+					ImGui::SameLine();
+					ImGui::Checkbox("Active", &(selected->active));
+
+					int pos[2] = { selected->position.x , selected->position.y };
+					ImGui::InputInt2("Position", pos);
+					selected->position = Point(pos[0], pos[1]);
+					int scale[2] = { selected->scale.x , selected->scale.y };
+					ImGui::InputInt2("Scale", scale);
+					selected->scale = Point(scale[0], scale[1]);
+					ImGui::SliderFloat("Rotation", &selected->rotation, 0, Calc::PI * 2);
+
+					for (auto& c : selected->components())
+					{
+						ImGui::Separator();
+
+						std::stringstream ss;
+						ss << c->name().cstr() << "##" << &c;
+
+						ImGui::AlignTextToFramePadding();
+						//bool tree_open = ImGui::TreeNodeEx((void*)entity, node_flags, "%s", entity->name.cstr());
+						bool component_open = ImGui::TreeNodeEx(ss.str().c_str(), ImGuiTreeNodeFlags_AllowItemOverlap);
+
+						ss.str("");
+						ss << "x##" << &c;
+						ImGui::SameLine(ImGui::GetWindowWidth() - 25);
+						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0.75f, 0.0f, 0.0f)));
+						bool c_press_delete = ImGui::Button(ss.str().c_str());
+						ImGui::PopStyleColor();
+
+						if (component_open)
+						{
+							ss.str("");
+							ss << "visible##" << &c;
+							ImGui::Checkbox(ss.str().c_str(), &(c->visible));
+							ImGui::SameLine();
+							ss.str("");
+							ss << "active##" << &c;
+							ImGui::Checkbox(ss.str().c_str(), &(c->active));
+							ImGui::SameLine();
+							ss.str("");
+							ss << "depth##" << &c;
+							ImGui::PushItemWidth(80);
+							ImGui::InputInt(ss.str().c_str(), &(c->depth));
+							ImGui::Separator();
+							c->debug();
+							ImGui::TreePop();
+						}
+
+						if (c_press_delete)
+						{
+							c->destroy();
+						}
+					}
+
+					if (e_press_delete)
+					{
+						selected->destroy();
+						selected = nullptr;
+					}
+				}
+				ImGui::End();
+			}
 		}
 	}
+
 	void Game::render()
 	{
 		// Draw gameplay to buffer
 		{
-			Color c = Color(245, 98, 182);
 
-			buffer->clear(Color::teal);
+			buffer->clear(Color(40, 40, 40));
 
 			batch.push_matrix(camera.get_matrix());
 
 			world.render(batch);
 
 			// draw debug colliders
-			if (m_draw_colliders)
+
 			{
-				auto collider = world.first<Collider>();
-				while (collider)
+				if (m_draw_colliders)
 				{
-					collider->render(batch);
-					collider = (Collider*)collider->next();
-				}
-			}
-			else
-			{
-				auto collider = world.first<Collider>();
-				while (collider)
-				{
-					if (m_draw_solid && collider->mask == Mask::solid)
+					auto collider = world.first<Collider>();
+					while (collider)
+					{
 						collider->render(batch);
-
-					if (m_draw_jumpthrough && collider->mask == Mask::jumpthru)
-						collider->render(batch);
-
-					if (m_draw_slope && collider->mask == Mask::slope)
-						collider->render(batch);
-
-					collider = (Collider*)collider->next();
-				}
-			}
-
-			if (m_draw_sb)
-			{
-				auto sb = world.first<SignalBox>();
-				while (sb)
-				{
-					for (const auto& targets : sb->get_listeners()) {
-						batch.line(sb->entity()->position, targets->entity()->position, 1.0f, Color::red);
-						batch.arrow_head(targets->entity()->position, sb->entity()->position, 6.0f, Color::red);
+						collider = (Collider*)collider->next();
 					}
+				}
+				else
+				{
+					auto collider = world.first<Collider>();
+					while (collider)
+					{
+						if (m_draw_solid && collider->mask == Mask::solid)
+							collider->render(batch);
 
-					sb = (SignalBox*)sb->next();
+						if (m_draw_jumpthrough && collider->mask == Mask::jumpthru)
+							collider->render(batch);
+
+						if (m_draw_slope && collider->mask == Mask::slope)
+							collider->render(batch);
+
+						collider = (Collider*)collider->next();
+					}
+				}
+			}
+
+			// draw debug cam
+
+			{
+				if (m_draw_cam)
+				{
+					batch.rect_line(Rect(camera.get_position(), camera.get_size()), 1, Color::teal);
+					batch.rect_line(camera.get_allowed_area(), 1, Color::green);
+
+				}
+			}
+
+			// Drawing arrow for signal boxes
+			{
+				if (m_draw_sb)
+				{
+					auto sb = world.first<SignalBox>();
+					while (sb)
+					{
+						for (const auto& targets : sb->get_listeners()) {
+							batch.line(sb->entity()->position, targets->entity()->position, 1.0f, Color::red);
+							batch.arrow_head(targets->entity()->position, sb->entity()->position, 6.0f, Color::red);
+						}
+
+						sb = (SignalBox*)sb->next();
+					}
 				}
 			}
 

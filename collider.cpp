@@ -2,6 +2,7 @@
 
 #include "masks.h"
 #include <iostream>
+#include "imgui.h"
 
 using namespace BT;
 
@@ -238,6 +239,18 @@ void Collider::render(Batch& batch)
 	}
 
 	batch.pop_matrix();
+}
+
+void BT::Collider::debug()
+{
+	if (shape() == Shape::Rect)
+	{
+		ImGui::InputInt("x", &m_rect.x);
+		ImGui::InputInt("y", &m_rect.y);
+		ImGui::InputInt("w", &m_rect.w);
+		ImGui::InputInt("h", &m_rect.h);
+
+	}
 }
 
 bool BT::Collider::rect_to_rect(const Collider* a, const Collider* b, Point offset)

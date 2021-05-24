@@ -60,6 +60,7 @@ namespace BT
 		bool overlaps(const Collider* other, Point offset = Point::zero) const;
 
 		void render(Batch& batch) override;
+		void debug() override;
 
 	private:
 		struct Grid

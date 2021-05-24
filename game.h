@@ -39,6 +39,7 @@ namespace BT
 	private:
 		bool m_draw_pivot;
 		bool m_draw_colliders;
+		bool m_draw_cam;
 
 		bool m_draw_solid;
 		bool m_draw_jumpthrough;

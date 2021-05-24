@@ -111,7 +111,7 @@ Entity* BT::Factory::button(World* world, Point point)
 	animator->play("idle");
 	animator->depth = -1;
 
-	auto trigger_zone = en->add(Collider::make_rect(RectI(-8, -8, 16, 8)));
+	auto trigger_zone = en->add(Collider::make_rect(RectI(-6, -8, 12, 1)));
 	button->trigger_zone = trigger_zone;
 
 	auto signal_box = en->add(SignalBox());

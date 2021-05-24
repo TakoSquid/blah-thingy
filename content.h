@@ -33,6 +33,8 @@ namespace BT {
 		//Point cell;
 		Point offset;
 		Point size;
+		Point cam_size;
+		Vec2 cam_scale;
 		String name;
 
 		Vector<TileLayer> layers;

@@ -8,7 +8,7 @@
   "directoryDepth": 5,
   "layerGridDefaultSize": {"x": 16, "y": 16},
   "levelDefaultSize": {"x": 320, "y": 240},
-  "levelMinSize": {"x": 256, "y": 160},
+  "levelMinSize": {"x": 0, "y": 0},
   "levelMaxSize": {"x": 1600, "y": 1600},
   "levelValues": [
     {
@@ -17,7 +17,11 @@
       "display": 0,
       "defaults": "proj:",
       "extensions": ["json"]
-    }
+    },
+    {"name": "cam_width", "definition": "Integer", "display": 0, "defaults": 256, "bounded": false, "min": 0, "max": 100},
+    {"name": "cam_height", "definition": "Integer", "display": 0, "defaults": 224, "bounded": false, "min": 0, "max": 100},
+    {"name": "cam_scale_x", "definition": "Float", "display": 0, "defaults": 1, "bounded": false, "min": 0, "max": 100},
+    {"name": "cam_scale_y", "definition": "Float", "display": 0, "defaults": 1, "bounded": false, "min": 0, "max": 100}
   ],
   "defaultExportMode": ".json",
   "compactExport": false,

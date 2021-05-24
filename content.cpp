@@ -211,8 +211,6 @@ void Content::load()
 
 		RoomInfo info;
 		info.name = name;
-		//info.cell.x = strtol(point[0].cstr(), nullptr, 0);
-		//info.cell.y = strtol(point[1].cstr(), nullptr, 0);
 
 		json j;
 		std::ifstream i(it);
@@ -220,6 +218,9 @@ void Content::load()
 
 		info.offset = Point(j["offsetX"].get<int>(), j["offsetY"].get<int>());
 		info.size = Point(j["width"].get<int>(), j["height"].get<int>());
+		info.cam_size = Point(j["values"]["cam_width"].get<int>(), j["values"]["cam_height"].get<int>());
+		info.cam_scale = Vec2(j["values"]["cam_scale_x"].get<float>(), j["values"]["cam_scale_y"].get<float>());
+
 
 		for (auto& it : j["layers"])
 		{
