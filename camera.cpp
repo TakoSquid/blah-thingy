@@ -13,14 +13,14 @@ Camera::Camera(Rect posSize, float rot, Vec2 scale)
 	transition_duration(.75f),
 	transition_timer(0.0f),
 	old_position(Vec2(0, 0)),
-	using_allowed_area(false)
+	using_allowed_area(false),
+	using_target_box(false)
 {
 }
 
 Mat3x2 Camera::get_matrix()
 {
 	return Mat3x2::create_translation(-posSize.top_left()) * Mat3x2::create_rotation(rotation) * Mat3x2::create_scale(scale);
-	
 }
 
 void Camera::set_allowed_area(Rect area)
@@ -28,15 +28,42 @@ void Camera::set_allowed_area(Rect area)
 	allowed_area = area;
 }
 
+void Camera::set_target_box(Rect box)
+{
+	target_box = box;
+}
+
 Rect BT::Camera::get_allowed_area()
 {
 	return allowed_area;
+}
+
+Rect Camera::get_target_box()
+{
+	return target_box;
 }
 
 void Camera::set_position(Vec2 pos)
 {
 	posSize.x = pos.x;
 	posSize.y = pos.y;
+}
+
+void Camera::update_rect_target(Rect target)
+{
+	if (!using_target_box) {
+		Log::warn("Camera not using rect target !");
+		return;
+	}
+
+	auto offset_x = (target.left() < target_box.left()) ? target.left() - target_box.left() : 0;
+	offset_x = (target.right() > target_box.right()) ? target.right() - target_box.right() : offset_x;
+
+	auto offset_y = (target.top() < target_box.top()) ? target.top() - target_box.top() : 0;
+	offset_y = (target.bottom() > target_box.bottom()) ? target.bottom() - target_box.bottom() : offset_y;
+
+	target_box.x += offset_x;
+	target_box.y += offset_y;
 }
 
 Vec2 Camera::get_position() const
@@ -104,15 +131,26 @@ void Camera::update()
 			scale = target_scale;
 		}
 	}
-	else if (using_allowed_area)
+	else
 	{
-		posSize.x = Calc::clamp(posSize.right() - posSize.w, allowed_area.left(), allowed_area.right() - posSize.w);
-		posSize.y = Calc::clamp(posSize.bottom() - posSize.h, allowed_area.top(), allowed_area.bottom() - posSize.h);
+		if (using_target_box)
+		{
+			posSize.x = target_box.x - (get_size().x - target_box.w) / 2.0f;
+			posSize.y = target_box.y - (get_size().y - target_box.h) / 2.0f;
+		}
+
+		if (using_allowed_area)
+		{
+			posSize.x = Calc::clamp(posSize.right() - posSize.w, allowed_area.left(), allowed_area.right() - posSize.w);
+			posSize.y = Calc::clamp(posSize.bottom() - posSize.h, allowed_area.top(), allowed_area.bottom() - posSize.h);
+		}
+
 	}
 
+	
 	if (ImGui::Begin("Camera", 0, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		float scale_array []= { scale.x, scale.y };
+		float scale_array[] = { scale.x, scale.y };
 		ImGui::DragFloat2("scale", scale_array, .01f, 0.0f, 0.0f, "%.3f", 0);
 		scale = Vec2(scale_array[0], scale_array[1]);
 

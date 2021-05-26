@@ -39,9 +39,12 @@ namespace BT {
 
 		Content::load();
 
-		room = Content::find_room("2x0");
+		room = Content::find_room("1x0");
 
 		camera = Camera();
+
+		camera.set_target_box(Rect(room->offset, Vec2(50, 50)));
+		camera.using_target_box = true;
 
 		camera.set_allowed_area(Rect(room->offset, room->size));
 		camera.using_allowed_area = true;
@@ -55,10 +58,10 @@ namespace BT {
 		m_draw_jumpthrough = false;
 		m_draw_slope = false;
 
+		load_room("1x0");
 		load_room("2x0");
 		load_room("-1x0");
 		load_room("0x0");
-		load_room("1x0");
 		load_room("2x1");
 
 		mouse_entity = world.add_entity();
@@ -312,7 +315,7 @@ namespace BT {
 		// Play pause window
 		{
 			ImGui::Begin("CHAOS CONTROL", 0, ImGuiWindowFlags_AlwaysAutoResize);
-			if (ImGui::Button(paused ? "Pause" : "Play"))
+			if (ImGui::Button(paused ? "Play" : "Pause"))
 				paused = !paused;
 			ImGui::End();
 		}
@@ -330,7 +333,14 @@ namespace BT {
 			if (!camera.is_in_transition())
 				world.update();
 
-			if (!RectI(room->offset, room->size).contains(player_pos))
+			if (auto player = world.first<Player>()) {
+				player_pos = player->entity()->position;
+				camera.update_rect_target(player->get<Collider>()->get_rect() + player->entity()->position);
+			}
+
+			//camera.set_position(Vec2(player_pos) - camera.get_size() / 2.0f);
+
+			if (!RectI(room->offset, room->size).contains(player_pos) || !room)
 			{
 				if (auto found_room = Content::find_room_by_pos(player_pos))
 				{
@@ -340,11 +350,8 @@ namespace BT {
 					auto camera_pos = camera.get_position();
 					camera.set_size(Vec2(room->cam_size));
 
-					auto camera_size = camera.get_size();
-
-					auto target_x = Calc::clamp(camera_pos.x - camera_size.x, allowed_area.left(), allowed_area.right() - camera_size.x);
-					auto target_y = Calc::clamp(camera_pos.y - camera_size.y, allowed_area.top(), allowed_area.bottom() - camera_size.y);
-
+					auto target_x = Calc::clamp((float)player_pos.x - camera.get_size().x/2, allowed_area.left(), allowed_area.right() - camera.get_size().x);
+					auto target_y = Calc::clamp((float)player_pos.y - camera.get_size().y/2, allowed_area.top(), allowed_area.bottom() - camera.get_size().y);
 
 					camera.lerp_to(Vec2(target_x, target_y), room->cam_scale);
 					
@@ -358,11 +365,8 @@ namespace BT {
 				}
 			}
 
-			if (auto player = world.first<Player>())
-				player_pos = player->entity()->position;
 
-			//camera.set_position(pos - Point(width / 2, height / 2));
-			camera.set_position(Vec2(player_pos) - camera.get_size()/2);
+
 
 			camera.update();
 		}
@@ -651,7 +655,7 @@ namespace BT {
 				{
 					batch.rect_line(Rect(camera.get_position(), camera.get_size()), 1, Color::teal);
 					batch.rect_line(camera.get_allowed_area(), 1, Color::green);
-
+					batch.rect_line(camera.get_target_box(), 1, Color::yellow);
 				}
 			}
 

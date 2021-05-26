@@ -4,7 +4,7 @@
   "height": 240,
   "offsetX": 1120,
   "offsetY": 240,
-  "values": {"links": "proj:", "cam_width": 96, "cam_height": 96, "cam_scale_x": 2.333, "cam_scale_y": 2.333},
+  "values": {"links": "proj:", "cam_width": 48, "cam_height": 48, "cam_scale_x": 4.666, "cam_scale_y": 4.666},
   "layers": [
     {
       "name": "foreground",

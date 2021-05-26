@@ -1,5 +1,6 @@
 #pragma once
 #include <blah.h>
+#include "world.h"
 
 using namespace Blah;
 
@@ -31,6 +32,10 @@ namespace BT
 		Rect get_allowed_area();
 		bool using_allowed_area;
 
+		void set_target_box(Rect area);
+		Rect get_target_box();
+		void update_rect_target(Rect target);
+		bool using_target_box;
 
 	private:
 		float rotation;
@@ -49,5 +54,6 @@ namespace BT
 		Vec2 target_scale;
 
 		Rect allowed_area;
+		Rect target_box;
 	};
 }
