@@ -37,6 +37,8 @@ namespace BT
 		void update_rect_target(Rect target);
 		bool using_target_box;
 
+		void shake(float frequency = 2.0f,float amplitude = 5.0f, float shake_duration = .3f);
+
 	private:
 		float rotation;
 		Vec2 scale;
@@ -55,5 +57,13 @@ namespace BT
 
 		Rect allowed_area;
 		Rect target_box;
+
+		// Shake data
+		Vec2 shake_offset;
+
+		float m_frequency = 2.0f;
+		float m_amplitude = 5.0;
+		float m_shake_duration = .3f;
+		float m_shake_timer = 0.0f;
 	};
 }

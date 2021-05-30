@@ -3,6 +3,7 @@
 
 #include "imgui.h"
 
+
 using namespace BT;
 
 Camera::Camera(Rect posSize, float rot, Vec2 scale)
@@ -20,7 +21,7 @@ Camera::Camera(Rect posSize, float rot, Vec2 scale)
 
 Mat3x2 Camera::get_matrix()
 {
-	return Mat3x2::create_translation(-posSize.top_left()) * Mat3x2::create_rotation(rotation) * Mat3x2::create_scale(scale);
+	return Mat3x2::create_translation(-posSize.top_left() + shake_offset) * Mat3x2::create_rotation(rotation) * Mat3x2::create_scale(scale);
 }
 
 void Camera::set_allowed_area(Rect area)
@@ -144,9 +145,21 @@ void Camera::update()
 			posSize.x = Calc::clamp(posSize.right() - posSize.w, allowed_area.left(), allowed_area.right() - posSize.w);
 			posSize.y = Calc::clamp(posSize.bottom() - posSize.h, allowed_area.top(), allowed_area.bottom() - posSize.h);
 		}
-
 	}
 
+	if (m_shake_timer > 0)
+	{
+		auto t = m_shake_timer / m_shake_duration;
+
+		shake_offset = Vec2(0, -m_amplitude * Ease::quad_out(t) * Calc::sin(2 * Calc::PI * m_frequency * (m_shake_duration - m_shake_timer)));
+
+		m_shake_timer -= Time::delta;
+
+		if (m_shake_timer <= 0) {
+			m_shake_timer = 0;
+			shake_offset = Vec2::zero;
+		}
+	}
 	
 	if (ImGui::Begin("Camera", 0, ImGuiWindowFlags_AlwaysAutoResize))
 	{
@@ -154,6 +167,27 @@ void Camera::update()
 		ImGui::DragFloat2("scale", scale_array, .01f, 0.0f, 0.0f, "%.3f", 0);
 		scale = Vec2(scale_array[0], scale_array[1]);
 
+		if (ImGui::Button("shake"))
+		{
+			shake();
+		}
+
+		ImGui::DragFloat("frequency", &m_frequency, .1f);
+		ImGui::DragFloat("amplitude", &m_amplitude, .1f);
+		ImGui::DragFloat("duration", &m_shake_duration, .1f);
+
+		ImGui::Text("%.2f/%.2f", (float)(m_shake_duration - m_shake_timer), m_shake_duration);
+		ImGui::Text("%.2f:%.2f", shake_offset.x, shake_offset.y);
+
+
 		ImGui::End();
 	}
+}
+
+void Camera::shake(float frequency, float amplitude, float duration)
+{
+	m_frequency = frequency;
+	m_amplitude = amplitude;
+	m_shake_duration = duration;
+	m_shake_timer = m_shake_duration;
 }

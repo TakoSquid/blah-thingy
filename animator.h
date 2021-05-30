@@ -30,6 +30,8 @@ namespace BT
 		void render(Batch& batch) override;
 		void debug() override;
 
+		int get_current_frame_index();
+
 	private:
 		bool in_valid_state() const;
 		bool m_play_once = false;

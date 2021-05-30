@@ -27,5 +27,11 @@ namespace BT
 
 		void set_pilot(Entity* pilot);
 		void release_pilot();
+
+		bool grounded_last_frame = true;
+
+		void stomp_effects();
+		bool stop_already = false;
+
 	};
 }

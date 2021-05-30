@@ -4,6 +4,7 @@
 #include "masks.h"
 #include "mover.h"
 #include "animator.h"
+#include "game.h"
 
 using namespace BT;
 
@@ -75,21 +76,24 @@ void BT::Mech::update()
 		release_pilot();
 	}
 
-	if (m_pilot && m_pilot->get<Animator>())
+	if (m_pilot &&  m_pilot->get<Animator>())
 	{
+
+		auto animator = m_pilot->get<Animator>();
+
 		int facing = get<Player>()->get_facing();
-		m_pilot->get<Animator>()->scale = Vec2(facing, 1.0f);
+		animator->scale = Vec2(facing, 1.0f);
 		m_pilot->position = entity()->position;
 
 		offset = Vec2(6 * facing, -74);
 		float angle = 0;
 
-		if (entity()->get<Animator>()->animation()->name == "run")
+		if (animator->animation()->name == "run")
 		{
 			offset += Vec2(facing * 17, 15);
 			angle = .7f * facing;
 		}
-		else if (entity()->get<Animator>()->animation()->name != "idle")
+		else if (animator->animation()->name != "idle")
 		{
 			offset += Vec2(facing * 4, 2);
 			angle = .2f * facing;
@@ -98,6 +102,39 @@ void BT::Mech::update()
 		m_pilot->rotation = angle;
 
 		pick_up_indicator->visible = false;
+	}
+
+	auto mover = get<Mover>();
+	
+	if (mover)
+	{
+		if (!grounded_last_frame && mover->on_ground() && mover->speed.y >= 0)
+		{
+			stomp_effects();
+		}
+
+		grounded_last_frame = mover->on_ground();
+	}
+
+	// Shake camera when foot down
+
+	auto animator = get<Animator>();
+
+	if (animator)
+	{
+		int current_frame = animator->get_current_frame_index();
+
+		if (animator->animation()->name == "run" && (current_frame == 3 || current_frame == 14))
+		{
+			if (!stop_already) {
+				stomp_effects();
+				stop_already = true;
+			}
+		}
+		else {
+			stop_already = false;
+		}
+
 	}
 }
 
@@ -130,4 +167,10 @@ void Mech::release_pilot()
 	m_mech_control->get<Animator>()->play("idle");
 
 	m_mech_control->active = false;
+}
+
+void Mech::stomp_effects()
+{
+	world()->game->camera.shake();
+	Content::play_sound("stomp");
 }

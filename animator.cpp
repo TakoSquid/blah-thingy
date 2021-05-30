@@ -161,3 +161,8 @@ void Animator::debug()
 	ss.str("");
 
 }
+
+int Animator::get_current_frame_index()
+{
+	return m_frame_index;
+}
